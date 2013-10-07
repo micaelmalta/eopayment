@@ -1,3 +1,9 @@
+eopayment (0.0.20-0) squeeze; urgency=low
+
+  * New packaging for debian squeeze.
+
+ -- Benjamin Dauvergne <bdauvergne@dor-lomin.entrouvert.com>  Mon, 07 Oct 2013 15:13:59 +0200
+
 eopayment (0.0.1-1) lenny; urgency=low
 
   * Initial package, targetting lenny.
