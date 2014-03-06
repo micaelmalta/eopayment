@@ -15,7 +15,6 @@ __all__ = ['Payment']
 TIPI_URL = 'http://www.jepaiemesserviceslocaux.dgfip.finances.gouv.fr' \
         '/tpa/paiement.web'
 LOGGER = logging.getLogger(__name__)
-SEPARATOR = '#'
 
 class Payment(PaymentCommon):
     '''Produce requests for and verify response from the TIPI online payment
@@ -75,8 +74,8 @@ class Payment(PaymentCommon):
             raise ValueError('EXER format invalide')
         try:
             refdet = str(refdet)
-            if len(refdet) != 18:
-                raise ValueError('len(REFDET) != 18')
+            if len(refdet) not in (18, 21):
+                raise ValueError('len(REFDET) != 18 and != 21')
         except Exception, e:
             raise ValueError('REFDET format invalide, %r' % refdet, e)
         if objet is not None:
@@ -101,25 +100,32 @@ class Payment(PaymentCommon):
         if saisie not in ('M', 'T', 'X', 'A'):
             raise ValueError('SAISIE invalid format, %r, must be M, T, X or A' % saisie)
 
+        if saisie == 'T':
+            exer = '9999'
+            objet = 'TEST ' + objet or ''
+            if len(refdet) == 18:
+                refdet = '999900000000999999'
+            else:
+                refdet = '999999990000000000000'
+
         iso_now = isonow()
         transaction_id = '%s_%s' % (iso_now, refdet)
         if objet:
-            objet = objet[:100-len(iso_now)-2] + ' ' + SEPARATOR \
-                    + iso_now
+            objet = objet[:100-len(iso_now)-2] + ' ' + iso_now
         else:
-            objet = SEPARATOR + iso_now
+            objet = iso_now
         params = {
-                'NUMCLI': self.numcli,
-                'REFDET': refdet,
-                'MONTANT': montant,
-                'MEL': mel,
-                'SAISIE': saisie,
-                'OBJET': objet,
+                'numcli': self.numcli,
+                'refdet': refdet,
+                'montant': montant,
+                'mel': mel,
+                'saisie': saisie,
+                'objet': objet,
         }
         if exer:
-            params['EXER'] = exer
+            params['exer'] = exer
         if next_url:
-            params['URLCL'] = next_url
+            params['urlcl'] = next_url
         url = '%s?%s' % (self.service_url, urlencode(params))
         return transaction_id, URL, url
 
