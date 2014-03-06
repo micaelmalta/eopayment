@@ -50,7 +50,7 @@ class Payment(PaymentCommon):
         self.logger = logger
 
     def request(self, amount, next_url=None, exer=None, refdet=None,
-            objet=None, mel=None, saisie=None, **kwargs):
+            objet=None, email=None, saisie=None, **kwargs):
         try:
             montant = Decimal(amount)
             if Decimal('0') > montant > Decimal('9999.99'):
@@ -90,13 +90,13 @@ class Payment(PaymentCommon):
             if len(objet) > 99:
                 raise ValueError('OBJET length must be less than 100')
         try:
-            mel = str(mel)
-            if '@' not in mel:
+            email = str(email)
+            if '@' not in email:
                 raise ValueError('no @ in MEL')
-            if not (6 <= len(mel) <= 80):
+            if not (6 <= len(email) <= 80):
                 raise ValueError('len(MEL) is invalid, must be between 6 and 80')
         except Exception, e:
-            raise ValueError('MEL is not a valid email, %r' % mel, e)
+            raise ValueError('MEL is not a valid email, %r' % email, e)
 
         if saisie not in ('M', 'T', 'X', 'A'):
             raise ValueError('SAISIE invalid format, %r, must be M, T, X or A' % saisie)
@@ -112,7 +112,7 @@ class Payment(PaymentCommon):
                 'NUMCLI': self.numcli,
                 'REFDET': refdet,
                 'MONTANT': montant,
-                'MEL': mel,
+                'MEL': email,
                 'SAISIE': saisie,
                 'OBJET': objet,
         }
@@ -162,7 +162,7 @@ if __name__ == '__main__':
             exer=9999,
             refdet=999900000000999999,
             objet='tout a fait',
-            mel='bdauvergne@entrouvert.com',
+            email='bdauvergne@entrouvert.com',
             urlcl='http://example.com/tipi/test',
             saisie='T')
     print p.response('OBJET=tout+a+fait+%2320121010131958&MONTANT=12312&SAISIE=T&MEL=bdauvergne%40entrouvert.com&NUMCLI=12345&EXER=9999&REFDET=999900000000999999&RESULTRANS=P')
