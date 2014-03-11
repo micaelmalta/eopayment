@@ -133,16 +133,16 @@ class Payment(PaymentCommon):
         fields = parse_qs(query_string, True)
         for key, value in fields.iteritems():
             fields[key] = value[0]
-        refdet = fields.get('REFDET')
+        refdet = fields.get('refdet')
         if refdet is None:
-            raise ValueError('REFDET is missing')
-        if 'OBJET' in fields and SEPARATOR in fields['OBJET']:
-            iso_now = fields['OBJET'].rsplit(SEPARATOR, 1)[1]
+            raise ValueError('refdet is missing')
+        if 'objet' in fields:
+            iso_now = fields['objet']
         else:
             iso_now = isonow()
         transaction_id = '%s_%s' % (iso_now, refdet)
 
-        result = fields.get('RESULTRANS')
+        result = fields.get('resultrans')
         if result == 'P':
             result = PAID
             bank_status = ''
@@ -171,4 +171,4 @@ if __name__ == '__main__':
             mel='bdauvergne@entrouvert.com',
             urlcl='http://example.com/tipi/test',
             saisie='T')
-    print p.response('OBJET=tout+a+fait+%2320121010131958&MONTANT=12312&SAISIE=T&MEL=bdauvergne%40entrouvert.com&NUMCLI=12345&EXER=9999&REFDET=999900000000999999&RESULTRANS=P')
+    print p.response('objet=tout+a+fait+%2320121010131958&montant=12312&saisie=T&mel=bdauvergne%40entrouvert.com&numcli=12345&exer=9999&refdet=999900000000999999&resultrans=P')
