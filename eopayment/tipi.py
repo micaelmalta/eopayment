@@ -168,7 +168,7 @@ if __name__ == '__main__':
             exer=9999,
             refdet=999900000000999999,
             objet='tout a fait',
-            mel='bdauvergne@entrouvert.com',
+            email='info@entrouvert.com',
             urlcl='http://example.com/tipi/test',
             saisie='T')
-    print p.response('objet=tout+a+fait&montant=12312&saisie=T&mel=bdauvergne%40entrouvert.com&numcli=12345&exer=9999&refdet=999900000000999999&resultrans=P')
+    print p.response('objet=tout+a+fait&montant=12312&saisie=T&mel=info%40entrouvert.com&numcli=12345&exer=9999&refdet=999900000000999999&resultrans=P')
