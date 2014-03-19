@@ -49,7 +49,7 @@ class Payment(PaymentCommon):
         self.logger = logger
 
     def request(self, amount, next_url=None, exer=None, refdet=None,
-            objet=None, mel=None, saisie=None, **kwargs):
+            objet=None, email=None, saisie=None, **kwargs):
         try:
             montant = Decimal(amount)
             if Decimal('0') > montant > Decimal('9999.99'):
@@ -74,8 +74,8 @@ class Payment(PaymentCommon):
             raise ValueError('EXER format invalide')
         try:
             refdet = str(refdet)
-            if len(refdet) not in (18, 21):
-                raise ValueError('len(REFDET) != 18 and != 21')
+            if 6 > len(refdet) > 30:
+                raise ValueError('len(REFDET) < 6 or > 30')
         except Exception, e:
             raise ValueError('REFDET format invalide, %r' % refdet, e)
         if objet is not None:
@@ -89,7 +89,7 @@ class Payment(PaymentCommon):
             if len(objet) > 99:
                 raise ValueError('OBJET length must be less than 100')
         try:
-            mel = str(mel)
+            mel = str(email)
             if '@' not in mel:
                 raise ValueError('no @ in MEL')
             if not (6 <= len(mel) <= 80):
