@@ -100,14 +100,6 @@ class Payment(PaymentCommon):
         if saisie not in ('M', 'T', 'X', 'A'):
             raise ValueError('SAISIE invalid format, %r, must be M, T, X or A' % saisie)
 
-        if saisie == 'T':
-            exer = '9999'
-            objet = 'TEST ' + objet or ''
-            if len(refdet) == 18:
-                refdet = '999900000000999999'
-            else:
-                refdet = '999999990000000000000'
-
         iso_now = isonow()
         transaction_id = '%s_%s' % (iso_now, refdet)
         if objet:
