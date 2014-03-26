@@ -6,7 +6,7 @@ import os.path
 from common import URL, HTML
 
 __all__ = ['Payment', 'URL', 'HTML', '__version__', 'SIPS', 'SYSTEMPAY',
-           'SPPLUS', 'DUMMY', 'get_backend']
+           'SPPLUS', 'TIPI', 'DUMMY', 'get_backend']
 
 __version__ = "0.0.22"
 
@@ -15,6 +15,7 @@ LOGGER = logging.getLogger(__name__)
 SIPS = 'sips'
 SYSTEMPAY = 'systempayv2'
 SPPLUS = 'spplus'
+TIPI = 'tipi'
 DUMMY = 'dummy'
 
 
