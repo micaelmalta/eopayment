@@ -28,6 +28,7 @@ class PaymentResponse(object):
        result -- holds the declarative result of the transaction, does not use
        it to validate the payment in your backoffice, it's just for informing
        the user that all is well.
+       test -- indicates if the transaction was a test
        signed -- holds whether the message was signed
        bank_data -- a dictionnary containing some data depending on the bank,
        you have to log it for audit purpose.
@@ -44,7 +45,7 @@ class PaymentResponse(object):
 
     def __init__(self, result=None, signed=None, bank_data=dict(),
             return_content=None, bank_status='', transaction_id='',
-            order_id=''):
+            order_id='', test=False):
         self.result = result
         self.signed = signed
         self.bank_data = bank_data
@@ -52,6 +53,7 @@ class PaymentResponse(object):
         self.bank_status = bank_status
         self.transaction_id = transaction_id
         self.order_id = order_id
+        self.test = test
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self.__dict__)

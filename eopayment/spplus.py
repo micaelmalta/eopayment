@@ -48,6 +48,7 @@ SPPLUS_RESPONSE_CODES = {
 VALID_STATE = ('1', '4', '10')
 ACCEPTED_STATE = ('1', '4')
 PAID_STATE = ('10',)
+TEST_STATE = ('99',)
 
 
 def decrypt_ntkey(ntkey):
@@ -179,12 +180,17 @@ next_url=%s' % (montant, email, next_url))
                     bank_status.append('invalid signature')
             except ValueError:
                 bank_status.append('invalid signature')
+
+        test = False
         if etat in PAID_STATE:
             result = PAID
         elif etat in ACCEPTED_STATE:
             result = ACCEPTED
         elif etat in VALID_STATE:
             result = RECEIVED
+        elif etat in TEST_STATE:
+            result = RECEIVED # what else ?
+            test = True
         else:
             result = ERROR
 
@@ -195,7 +201,8 @@ next_url=%s' % (montant, email, next_url))
                 order_id=reference,
                 transaction_id=form[self.BANK_ID],
                 bank_status=' - '.join(bank_status),
-                return_content=SPCHECKOK)
+                return_content=SPCHECKOK,
+                test=test)
         return response
 
 

@@ -115,7 +115,8 @@ class Payment(PaymentCommon):
                 return_content=content,
                 order_id=transaction_id,
                 transaction_id=transaction_id,
-                bank_status=form.get('reason'))
+                bank_status=form.get('reason'),
+                test=True)
         return response
 
 if __name__ == '__main__':

@@ -147,12 +147,16 @@ class Payment(PaymentCommon):
         else:
             bank_status = 'wrong return: %r' % result
             result = ERROR
+
+        test = fields.get('saisie') == 'T'
+
         return PaymentResponse(
                 result=result,
                 bank_status=bank_status,
                 signed=True,
                 bank_data=fields,
-                transaction_id=transaction_id)
+                transaction_id=transaction_id,
+                test=test)
 
 if __name__ == '__main__':
     p = Payment({'numcli': '12345'})

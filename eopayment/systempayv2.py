@@ -32,6 +32,7 @@ VADS_SITE_ID = 'vads_site_id'
 VADS_TRANS_ID = 'vads_trans_id'
 SIGNATURE = 'signature'
 VADS_TRANS_ID = 'vads_trans_id'
+VADS_CTX_MODE = 'vads_ctx_mode'
 
 
 def isonow():
@@ -353,6 +354,7 @@ class Payment(PaymentCommon):
             result = PAID
         else:
             result = ERROR
+        test = fields[VADS_CTX_MODE] == 'TEST'
         transaction_id = '%s_%s' % (copy[VADS_TRANS_DATE], copy[VADS_TRANS_ID])
         # the VADS_AUTH_NUMBER is the number to match payment in bank logs
         copy[self.BANK_ID] = copy.get(VADS_AUTH_NUMBER, '')
@@ -362,7 +364,8 @@ class Payment(PaymentCommon):
                 bank_data=copy,
                 order_id=transaction_id,
                 transaction_id=copy.get(VADS_AUTH_NUMBER),
-                bank_status=' - '.join(bank_status))
+                bank_status=' - '.join(bank_status),
+                test=test)
         return response
 
     def signature(self, fields):
