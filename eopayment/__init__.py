@@ -12,6 +12,7 @@ SYSTEMPAY = 'systempayv2'
 SPPLUS = 'spplus'
 TIPI = 'tipi'
 DUMMY = 'dummy'
+OGONE = 'ogone'
 
 
 def get_backend(kind):
