@@ -4,7 +4,7 @@ from common import URL, HTML, FORM, RECEIVED, ACCEPTED, PAID, DENIED, CANCELED, 
 
 __all__ = ['Payment', 'URL', 'HTML', 'FORM', '__version__', 'SIPS',
 'SYSTEMPAY', 'SPPLUS', 'TIPI', 'DUMMY', 'get_backend', 'RECEIVED', 'ACCEPTED',
-'PAID', 'DENIED', 'CANCELED', 'ERROR']
+'PAID', 'DENIED', 'CANCELED', 'ERROR', 'get_backends']
 
 __version__ = "0.0.22"
 
@@ -21,6 +21,17 @@ def get_backend(kind):
     module = __import__(kind, globals(), locals(), [])
     return module.Payment
 
+__BACKENDS = [ DUMMY, SIPS, SYSTEMPAY, SPPLUS, OGONE ]
+
+def get_backends():
+    '''Return a dictionnary mapping existing eopayment backends name to their
+       description.
+
+          >>> get_backends()['dummy'].description['caption']
+          'Dummy payment backend'
+
+    '''
+    return {backend: get_backend(backend) for backend in __BACKENDS}
 
 class Payment(object):
     '''
