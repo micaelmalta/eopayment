@@ -2,6 +2,7 @@ import os.path
 import os
 import random
 import logging
+import urllib
 from datetime import date
 
 __all__ = ['PaymentCommon', 'URL', 'HTML', 'RANDOM', 'RECEIVED', 'ACCEPTED',
@@ -12,6 +13,7 @@ RANDOM = random.SystemRandom()
 
 URL = 1
 HTML = 2
+FORM = 3
 
 RECEIVED = 1
 ACCEPTED = 2
@@ -98,3 +100,20 @@ class PaymentCommon(object):
             else:
                 os.close(fd)
                 return id
+
+class Form(object):
+    def __init__(self, url, method, fields):
+        self.url = url
+        self.method = method
+        self.fields = fields
+
+    def __repr__(self):
+        s = '<form method="%s" action="%s">' % (self.method, self.url)
+        for field in self.fields:
+            s+= '<input type="%s" name="%s" value="%s">' % (
+                urllib.quote(field['type']),
+                urllib.quote(field['name']),
+                urllib.quote(field['value']))
+        s += '<input type="submit" name="Submit">'
+        s += '</form>'
+        return s
