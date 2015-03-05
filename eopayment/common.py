@@ -8,7 +8,6 @@ __all__ = ['PaymentCommon', 'URL', 'HTML', 'RANDOM', 'RECEIVED', 'ACCEPTED',
            'PAID', 'ERROR']
 
 
-LOGGER = logging.getLogger(__name__)
 RANDOM = random.SystemRandom()
 
 URL = 1
@@ -75,9 +74,9 @@ class PaymentCommon(object):
     PATH = '/tmp'
     BANK_ID = '__bank_id'
 
-    def __init__(self, options, logger=LOGGER):
-        self.logger = logger
-        logger.debug('initializing with options %s' % options)
+    def __init__(self, options):
+        self.logger = logging.getLogger(self.__class__.__module__)
+        self.logger.debug('initializing with options %s', options)
         for value in self.description['parameters']:
             key = value['name']
             if 'default' in value:

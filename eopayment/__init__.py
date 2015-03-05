@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
 from common import URL, HTML
 
 __all__ = ['Payment', 'URL', 'HTML', '__version__', 'SIPS', 'SYSTEMPAY',
            'SPPLUS', 'TIPI', 'DUMMY', 'get_backend']
 
 __version__ = "0.0.22"
-
-LOGGER = logging.getLogger(__name__)
 
 SIPS = 'sips'
 SYSTEMPAY = 'systempayv2'
@@ -66,10 +62,9 @@ class Payment(object):
 
     '''
 
-    def __init__(self, kind, options, logger=LOGGER):
-        self.logger = logger
+    def __init__(self, kind, options):
         self.kind = kind
-        self.backend = get_backend(kind)(options, logger=logger)
+        self.backend = get_backend(kind)(options)
 
     def request(self, amount, **kwargs):
         '''Request a payment to the payment backend.
