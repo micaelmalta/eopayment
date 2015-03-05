@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from common import URL, HTML
+from common import URL, HTML, FORM, RECEIVED, ACCEPTED, PAID, DENIED, CANCELED, ERROR
 
-__all__ = ['Payment', 'URL', 'HTML', '__version__', 'SIPS', 'SYSTEMPAY',
-           'SPPLUS', 'TIPI', 'DUMMY', 'get_backend']
+__all__ = ['Payment', 'URL', 'HTML', 'FORM', '__version__', 'SIPS',
+'SYSTEMPAY', 'SPPLUS', 'TIPI', 'DUMMY', 'get_backend', 'RECEIVED', 'ACCEPTED',
+'PAID', 'DENIED', 'CANCELED', 'ERROR']
 
 __version__ = "0.0.22"
 
