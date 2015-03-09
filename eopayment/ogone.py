@@ -508,7 +508,7 @@ class Payment(PaymentCommon):
 
     def response(self, query_string):
         params = urlparse.parse_qs(query_string, True)
-        params = {key.upper(): params[key][0] for key in params}
+        params = dict((key.upper(), params[key][0]) for key in params)
         reference = params['ORDERID']
         transaction_id = params['PAYID']
         status = params['STATUS']

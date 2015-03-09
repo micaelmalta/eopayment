@@ -31,7 +31,7 @@ def get_backends():
           'Dummy payment backend'
 
     '''
-    return {backend: get_backend(backend) for backend in __BACKENDS}
+    return dict((backend, get_backend(backend)) for backend in __BACKENDS)
 
 class Payment(object):
     '''
