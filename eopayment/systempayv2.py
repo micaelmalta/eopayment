@@ -386,7 +386,14 @@ if __name__ == '__main__':
         secret_test='',
         site_id='',
         ctx_mode='TEST'))
-    print p.request(100, vads_url_return='http://url.de.retour/retour.php')
     qs = 'vads_amount=100&vads_auth_mode=FULL&vads_auth_number=767712&vads_auth_result=00&vads_capture_delay=0&vads_card_brand=CB&vads_card_number=497010XXXXXX0000&vads_payment_certificate=9da32cc109882089e1b3fb80888ebbef072f70b7&vads_ctx_mode=TEST&vads_currency=978&vads_effective_amount=100&vads_site_id=&vads_trans_date=20120529132547&vads_trans_id=620594&vads_validation_mode=0&vads_version=V2&vads_warranty_result=NO&vads_payment_src=&vads_order_id=---&vads_cust_country=FR&vads_contrib=eopayment&vads_contract_used=2334233&vads_expiry_month=6&vads_expiry_year=2013&vads_pays_ip=FR&vads_identifier=&vads_subscription=&vads_threeds_enrolled=&vads_threeds_cavv=&vads_threeds_eci=&vads_threeds_xid=&vads_threeds_cavvAlgorithm=&vads_threeds_status=&vads_threeds_sign_valid=&vads_threeds_error_code=&vads_threeds_exit_status=&vads_result=00&vads_extra_result=&vads_card_country=FR&vads_language=fr&vads_action_mode=INTERACTIVE&vads_page_action=PAYMENT&vads_payment_config=SINGLE&signature=9c4f2bf905bb06b008b07090905adf36638d8ece&'
     response = p.response(qs)
     assert response.signed and response.result
+
+    # Test vector from Systempayv2 documentation
+    p = Payment(dict(secret_test='1122334455667788'))
+    qs = 'vads_version=V2&vads_page_action=PAYMENT&vads_action_mode=INTERACTIVE&vads_payment_config=SINGLE&vads_site_id=12345678&vads_ctx_mode=TEST&vads_trans_id=654321&vads_trans_date=20090501193530&vads_amount=1524&vads_currency=978'
+    qs = urlparse.parse_qs(qs)
+    for key in qs.keys():
+        qs[key] = qs[key][0]
+    assert p.signature(qs) == '606b369759fac4f0864144c803c73676cbe470ff'
