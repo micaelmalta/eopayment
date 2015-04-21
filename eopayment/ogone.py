@@ -4,7 +4,7 @@ import string
 import urlparse
 from decimal import Decimal, ROUND_HALF_UP
 
-from common import (PaymentCommon, PaymentResponse, FORM, CANCELED, PAID,
+from common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
         ERROR, Form, DENIED, ACCEPTED)
 def N_(message): return message
 
@@ -521,7 +521,7 @@ class Payment(PaymentCommon):
             print 'signed', signature
             print 'expected', expected_signature
         if status == '1':
-            result = CANCELED
+            result = CANCELLED
         elif status == '2':
             result = DENIED
         elif status == '5':

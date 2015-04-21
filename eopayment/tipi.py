@@ -2,7 +2,7 @@
 
 from decimal import Decimal, ROUND_DOWN
 from common import (PaymentCommon, PaymentResponse, URL, PAID, DENIED,
-        CANCELED, ERROR)
+        CANCELLED, ERROR)
 from urllib import urlencode
 from urlparse import parse_qs
 from gettext import gettext as _
@@ -142,7 +142,7 @@ class Payment(PaymentCommon):
             result = DENIED
             bank_status = 'refused'
         elif result == 'A':
-            result = CANCELED
+            result = CANCELLED
             bank_status = 'canceled'
         else:
             bank_status = 'wrong return: %r' % result

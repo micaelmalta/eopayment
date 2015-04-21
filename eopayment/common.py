@@ -19,7 +19,8 @@ RECEIVED = 1
 ACCEPTED = 2
 PAID = 3
 DENIED = 4
-CANCELED = 5
+CANCELLED = 5
+CANCELED = 5 # typo for backward compatibility
 ERROR = 99
 
 
