@@ -83,7 +83,7 @@ distutils.core.setup(name='eopayment',
         maintainer="Benjamin Dauvergne",
         maintainer_email="bdauvergne@entrouvert.com",
         packages=['eopayment'],
-        requires=[
-            'pycrypto (>= 2.5)'
+        install_requires=[
+            'pycrypto >= 2.5'
         ],
         cmdclass={'test': TestCommand})
