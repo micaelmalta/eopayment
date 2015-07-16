@@ -72,6 +72,9 @@ class PaymentResponse(object):
     def is_error(self):
         return self.result == ERROR
 
+    def __repr__(self):
+        return '<%s %s>' % (self.__class__.__name__, repr(self.__dict__))
+
 
 class PaymentCommon(object):
     PATH = '/tmp'
