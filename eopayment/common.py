@@ -2,7 +2,6 @@ import os.path
 import os
 import random
 import logging
-import urllib
 import cgi
 from datetime import date
 
@@ -21,7 +20,7 @@ ACCEPTED = 2
 PAID = 3
 DENIED = 4
 CANCELLED = 5
-CANCELED = 5 # typo for backward compatibility
+CANCELED = 5  # typo for backward compatibility
 ERROR = 99
 
 
@@ -47,8 +46,8 @@ class PaymentResponse(object):
     '''
 
     def __init__(self, result=None, signed=None, bank_data=dict(),
-            return_content=None, bank_status='', transaction_id='',
-            order_id='', test=False):
+                 return_content=None, bank_status='', transaction_id='',
+                 order_id='', test=False):
         self.result = result
         self.signed = signed
         self.bank_data = bank_data
@@ -103,6 +102,7 @@ class PaymentCommon(object):
                 os.close(fd)
                 return id
 
+
 class Form(object):
     def __init__(self, url, method, fields, encoding='utf-8',
                  submit_name='Submit', submit_value='Submit'):
@@ -116,15 +116,17 @@ class Form(object):
     def __repr__(self):
         s = '<form method="%s" action="%s">' % (self.method, self.url)
         for field in self.fields:
-            s+= '\n  <input type="%s" name="%s" value="%s"/>' % (
+            s += '\n  <input type="%s" name="%s" value="%s"/>' % (
                 cgi.escape(field['type'].encode(self.encoding)),
                 cgi.escape(field['name'].encode(self.encoding)),
                 cgi.escape(field['value'].encode(self.encoding)))
         s += '\n  <input type="submit"'
         if self.submit_name:
-            s += ' name="%s"' % cgi.escape(self.submit_name.encode(self.encoding))
+            s += ' name="%s"' % cgi.escape(
+                self.submit_name.encode(self.encoding))
         if self.submit_value:
-            s += ' value="%s"' % cgi.escape(self.submit_value.encode(self.encoding))
+            s += ' value="%s"' % cgi.escape(
+                self.submit_value.encode(self.encoding))
         s += ' />'
         s += '\n</form>'
         return s
