@@ -3,6 +3,7 @@ import os
 import random
 import logging
 import urllib
+import cgi
 from datetime import date
 
 __all__ = ['PaymentCommon', 'URL', 'HTML', 'RANDOM', 'RECEIVED', 'ACCEPTED',
@@ -103,18 +104,27 @@ class PaymentCommon(object):
                 return id
 
 class Form(object):
-    def __init__(self, url, method, fields):
+    def __init__(self, url, method, fields, encoding='utf-8',
+                 submit_name='Submit', submit_value='Submit'):
         self.url = url
         self.method = method
         self.fields = fields
+        self.encoding = encoding
+        self.submit_name = submit_name
+        self.submit_value = submit_value
 
     def __repr__(self):
         s = '<form method="%s" action="%s">' % (self.method, self.url)
         for field in self.fields:
-            s+= '<input type="%s" name="%s" value="%s">' % (
-                urllib.quote(field['type']),
-                urllib.quote(field['name']),
-                urllib.quote(field['value']))
-        s += '<input type="submit" name="Submit">'
-        s += '</form>'
+            s+= '\n  <input type="%s" name="%s" value="%s"/>' % (
+                cgi.escape(field['type'].encode(self.encoding)),
+                cgi.escape(field['name'].encode(self.encoding)),
+                cgi.escape(field['value'].encode(self.encoding)))
+        s += '\n  <input type="submit"'
+        if self.submit_name:
+            s += ' name="%s"' % cgi.escape(self.submit_name.encode(self.encoding))
+        if self.submit_value:
+            s += ' value="%s"' % cgi.escape(self.submit_value.encode(self.encoding))
+        s += ' />'
+        s += '\n</form>'
         return s
