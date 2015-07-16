@@ -1,8 +1,30 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8
 
+from collections import OrderedDict
+import datetime
 import logging
 import hashlib
 import hmac
+from decimal import Decimal, ROUND_DOWN
+from Crypto.Signature import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA
+import urlparse
+import urllib
+import base64
+from gettext import gettext as _
+import string
+
+from common import PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form
+
+__all__ = ['sign', 'Payment']
+
+PAYBOX_KEY = '''-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDe+hkicNP7ROHUssGNtHwiT2Ew
+HFrSk/qwrcq8v5metRtTTFPE/nmzSkRnTs3GMpi57rBdxBBJW5W9cpNyGUh0jNXc
+VrOSClpD5Ri2hER/GcNrxVRP7RlWOqB1C03q4QYmwjHZ+zlM4OUhCCAtSWflB4wC
+Ka1g88CjFwRw/PB9kwIDAQAB
+-----END PUBLIC KEY-----'''
 
 VARS = {
     'PBX_SITE': 'Numéro de site (fourni par Paybox)',
@@ -18,12 +40,59 @@ VARS = {
     'PBX_HMAC': 'Signature calculée avec la clé secrète',
 }
 
+PAYBOX_ERROR_CODES = {
+    '00000': 'Opération réussie.',
+    '00001': 'La connexion au centre d’autorisation a échoué ou une '
+    'erreur interne est survenue. Dans ce cas, il est souhaitable de faire '
+    'une tentative sur le site secondaire : tpeweb1.paybox.com.',
+    '001xx':  'Paiement refusé par le centre d’autorisation [voir '
+    '§12.112.1 Codes réponses du centre d’autorisationCodes réponses du '
+    'centre d’autorisation]. En cas d’autorisation de la transaction par '
+    'le centre d’autorisation de la banque ou de l’établissement financier '
+    'privatif, le code erreur “00100” sera en fait remplacé directement '
+    'par “00000”.',
+    '00003': 'Erreur Paybox. Dans ce cas, il est souhaitable de faire une '
+    'tentative sur le site secondaire FQDN tpeweb1.paybox.com.',
+    '00004': 'Numéro de porteur ou cryptogramme visuel invalide.',
+    '00006': 'Accès refusé ou site/rang/identifiant incorrect.',
+    '00008': 'Date de fin de validité incorrecte.',
+    '00009': 'Erreur de création d’un abonnement.',
+    '00010': 'Devise inconnue.',
+    '00011': 'Montant incorrect.',
+    '00015': 'Paiement déjà effectué.',
+    '00016': 'Abonné déjà existant (inscription nouvel abonné). Valeur '
+    '‘U’ de la variable PBX_RETOUR.',
+    '00021': 'Carte non autorisée.',
+    '00029': 'Carte non conforme. Code erreur renvoyé lors de la '
+    'documentation de la variable « PBX_EMPREINTE ».',
+    '00030': 'Temps d’attente > 15 mn par l’internaute/acheteur au niveau '
+    'de la page de paiements.',
+    '00031': 'Réservé',
+    '00032': 'Réservé',
+    '00033': 'Code pays de l’adresse IP du navigateur de l’acheteur non '
+    'autorisé.',
+    '00040': 'Opération sans authentification 3-DSecure, bloquée par le '
+    'filtre.',
+    '99999': 'Opération en attente de validation par l’émetteur du moyen '
+    'de paiement.',
+}
+
 ALGOS = {
     'SHA512': hashlib.sha512,
     'SHA256': hashlib.sha256,
     'SHA384': hashlib.sha384,
     'SHA224': hashlib.sha224,
 }
+
+URLS = {
+    'test':
+        'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi',
+    'prod':
+        'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi',
+    'backup':
+        'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi',
+}
+
 
 def sign(data, key):
     '''Take a list of tuple key, value and sign it by building a string to
@@ -38,25 +107,151 @@ def sign(data, key):
             algo = ALGOS[v]
             break
     assert algo, 'Missing or invalid PBX_HASH'
-    tosign = ['%s=%s' % (k, v) for k, v in data]
+    tosign = ['%s=%s' % (k, unicode(v).encode('utf-8')) for k, v in data]
     tosign = '&'.join(tosign)
-    print tosign
     logger.debug('signed string %r', tosign)
     signature = hmac.new(key, tosign, algo)
     return tuple(data) + (('PBX_HMAC', signature.hexdigest().upper()),)
 
-if __name__ == '__main__':
-    key = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'.decode('hex')
-    for k, v in sign([
-                ['PBX_SITE', '1999888'],
-                ['PBX_RANG', '32'],
-                ['PBX_IDENTIFIANT', '110647233'],
-                ['PBX_TOTAL', '999'], 
-                ['PBX_DEVISE', '978'],
-                ['PBX_CMD', 'TEST Paybox'],
-                ['PBX_PORTEUR', 'test@paybox.com'],
-                ['PBX_RETOUR', 'Mt:M;Ref:R;Auto:A;Erreur:E'],
-                ['PBX_HASH', 'SHA512'],
-                ['PBX_TIME', '2015-06-08T16:21:16+02:00']],
-            key):
-        print k, v
+
+def verify(data, signature, key=PAYBOX_KEY):
+    '''Verify signature using SHA1withRSA by Paybox'''
+    key = RSA.importKey(key)
+    h = SHA.new(data)
+    verifier = PKCS1_v1_5.new(key)
+    return verifier.verify(h, signature)
+
+
+class Payment(PaymentCommon):
+    '''Paybox backend for eopayment.
+
+       If you want to handle Instant Payment Notification, you must pass
+       a callback parameter to the request() method specifying the URL of
+       the callback endpoint.
+
+       Email is mandatory to emit payment requests with paybox.
+
+       IP adresses to authorize:
+                                 IN           OUT
+           test           195.101.99.73 195.101.99.76
+           production     194.2.160.66  194.2.122.158
+           backup         195.25.7.146  195.25.7.166
+    '''
+
+    description = {
+        'caption': _('Paybox'),
+        'parameters': [
+            {
+                'name': 'platform',
+                'caption': _('Plateforme cible'),
+                'default': 'test',
+                'validation': lambda x: isinstance(x, basestring) and
+                x.lower() in ('test', 'prod'),
+            },
+            {
+                'name': 'site',
+                'caption': _('Numéro de site'),
+                'required': True,
+                'validation': lambda x: isinstance(x, basestring) and
+                x.isdigit() and len(x) == 7,
+            },
+            {
+                'name': 'rang',
+                'caption': _('Numéro de rang'),
+                'required': True,
+                'validation': lambda x: isinstance(x, basestring) and
+                x.isdigit() and len(x) == 2,
+            },
+            {
+                'name': 'identifiant',
+                'caption': _('Identifiant'),
+                'required': True,
+                'validation': lambda x: isinstance(x, basestring) and
+                x.isdigit() and (0 < len(x) < 10),
+            },
+            {
+                'name': 'shared_secret',
+                'caption': _('Secret partagé'),
+                'validation': lambda x: isinstance(x, str) and
+                all(a.lower() in '0123456789ABCDEF' for a in x),
+                'required': True,
+            },
+            {
+                'name': 'devise',
+                'caption': _('Devise'),
+                'default': '978',
+                'choices': (
+                    ('978', 'Euro'),
+                ),
+            },
+        ]
+    }
+
+    def request(self, amount, email, name=None, **kwargs):
+        d = OrderedDict()
+        d['PBX_SITE'] = unicode(self.site)
+        d['PBX_RANG'] = unicode(self.rang).strip()[-2:]
+        d['PBX_IDENTIFIANT'] = unicode(self.identifiant)
+        d['PBX_TOTAL'] = (amount * Decimal(100)).to_integral_value(ROUND_DOWN)
+        d['PBX_DEVISE'] = unicode(self.devise)
+        transaction_id = kwargs.get('transaction_id') or \
+            self.transaction_id(12, string.digits, 'paybox', self.site,
+                                self.rang, self.identifiant)
+        d['PBX_CMD'] = unicode(transaction_id)
+        d['PBX_PORTEUR'] = unicode(email)
+        d['PBX_RETOUR'] = 'montant:M;reference:R;code_autorisation:A;erreur:E;signature:K'
+        d['PBX_HASH'] = 'SHA512'
+        d['PBX_TIME'] = kwargs.get('time') or (unicode(datetime.datetime.utcnow().isoformat('T')).split('.')[0]+'+00:00')
+        d['PBX_ERRORCODETEST'] = '77777'
+        d['PBX_ARCHIVAGE'] = transaction_id
+        if 'callback' in kwargs:
+            d['PBX_REPONDRE_A'] = unicode(kwargs['callback'])
+        d = d.items()
+        d = sign(d, self.shared_secret.decode('hex'))
+        url = URLS[self.platform]
+        fields = []
+        for k, v in d:
+            fields.append({
+                'type': u'hidden',
+                'name': unicode(k),
+                'value': unicode(v),
+            })
+        form = Form(url, 'POST', fields, submit_name=None,
+                    submit_value=u'Envoyer', encoding='utf-8')
+        return transaction_id, FORM, form
+
+    def response(self, query_string, callback=False, **kwargs):
+        d = urlparse.parse_qs(query_string, True, False)
+        signed = False
+        if 'signature' in d:
+            sig = d['signature'][0]
+            sig = base64.b64decode(sig)
+            data = []
+            if callback:
+                for key in ('montant', 'reference', 'code_autorisation',
+                            'erreur'):
+                    data.append('%s=%s' % (key, urllib.quote(d[key][0])))
+            else:
+                for key, value in urlparse.parse_qsl(query_string, True, True):
+                    if key == 'signature':
+                        break
+                    data.append('%s=%s' % (key, urllib.quote(value)))
+            data = '&'.join(data)
+            signed = verify(data, sig)
+        if d['erreur'][0] == '00000':
+            result = PAID
+        else:
+            result = ERROR
+        for l in (5, 3):
+            prefix = d['erreur'][0][:l]
+            suffix = 'x' * (5-l)
+            bank_status = PAYBOX_ERROR_CODES.get(prefix + suffix)
+            if bank_status is not None:
+                break
+
+        return PaymentResponse(
+            order_id=d['reference'][0],
+            signed=signed,
+            bank_data=d,
+            result=result,
+            bank_status=bank_status)
