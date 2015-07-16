@@ -309,7 +309,7 @@ class Payment(PaymentCommon):
         self.logger.debug('%s transaction id: %s', __name__, transaction_id)
         return transaction_id, URL, url
 
-    def response(self, query_string):
+    def response(self, query_string, **kwargs):
         fields = urlparse.parse_qs(query_string, True)
         for key, value in fields.iteritems():
             fields[key] = value[0]

@@ -506,7 +506,7 @@ class Payment(PaymentCommon):
                          'value': params[key]} for key in params])
         return reference, FORM, form
 
-    def response(self, query_string):
+    def response(self, query_string, **kwargs):
         params = urlparse.parse_qs(query_string, True)
         params = dict((key.upper(), params[key][0]) for key in params)
         reference = params['ORDERID']

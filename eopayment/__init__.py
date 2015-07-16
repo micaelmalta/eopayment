@@ -103,7 +103,7 @@ class Payment(object):
         '''
         return self.backend.request(amount, **kwargs)
 
-    def response(self, query_string):
+    def response(self, query_string, **kwargs):
         '''
           Process a response from the Bank API. It must be used on the URL
           where the user browser of the payment server is going to post the
@@ -136,4 +136,4 @@ class Payment(object):
              your site as a web service.
 
         '''
-        return self.backend.response(query_string)
+        return self.backend.response(query_string, **kwargs)

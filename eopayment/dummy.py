@@ -96,7 +96,7 @@ class Payment(PaymentCommon):
         url = '%s?%s' % (SERVICE_URL, urllib.urlencode(query))
         return transaction_id, URL, url
 
-    def response(self, query_string, logger=LOGGER):
+    def response(self, query_string, logger=LOGGER, **kwargs):
         form = parse_qs(query_string)
         transaction_id = form.get('transaction_id',[''])[0]
         form[self.BANK_ID] = transaction_id

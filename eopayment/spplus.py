@@ -154,7 +154,7 @@ next_url=%s' % (amount, email, next_url))
         logger.debug('full url %s' % url)
         return reference, URL, url
 
-    def response(self, query_string, logger=LOGGER):
+    def response(self, query_string, logger=LOGGER, **kwargs):
         form = urlparse.parse_qs(query_string)
         for key, value in form.iteritems():
             form[key] = value[0]

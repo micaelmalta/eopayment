@@ -121,7 +121,7 @@ class Payment(PaymentCommon):
         url = '%s?%s' % (self.service_url, urlencode(params))
         return transaction_id, URL, url
 
-    def response(self, query_string):
+    def response(self, query_string, **kwargs):
         fields = parse_qs(query_string, True)
         for key, value in fields.iteritems():
             fields[key] = value[0]

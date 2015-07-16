@@ -150,7 +150,7 @@ class Payment(PaymentCommon):
         else:
             raise RuntimeError('sips/request returned -1: %s' % error)
 
-    def response(self, query_string):
+    def response(self, query_string, **kwargs):
         form = urlparse.parse_qs(query_string)
         params = {'message': form[DATA][0]}
         result = self.execute('response', params)
