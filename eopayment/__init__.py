@@ -94,12 +94,9 @@ class Payment(object):
             - the first gives a string value to later match the payment with
               the invoice,
             - kind gives the type of the third value, payment.URL or
-              payment.HTML,
+              payment.HTML or payment.FORM,
             - the third is the URL or the HTML form to contact the payment
               server, which must be sent to the customer browser.
-
-          kind of the third argument, it can be URL or HTML, the third is the
-          corresponding value as string containing HTML or an URL
         '''
         return self.backend.request(amount, **kwargs)
 
