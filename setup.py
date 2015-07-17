@@ -10,7 +10,7 @@ import distutils.core
 import setuptools
 from distutils.command.sdist import sdist
 from glob import glob
-from os.path import splitext, basename, join as pjoin
+from os.path import splitext, basename, join as pjoin, dirname
 import os
 from unittest import TextTestRunner, TestLoader
 import doctest
@@ -85,9 +85,10 @@ setuptools.setup(
     license='GPLv3 or later',
     description='Common API to use all French online payment credit card '
     'processing services',
-    long_description='eopayment is a Python module to interface with '
-    'French\'s bank credit card online payment services. Supported '
-    'services are ATOS/SIP, SystemPay, and SPPLUS.',
+    long_description=file(
+        os.path.join(
+            os.path.dirname(__file__),
+            'README.txt')).read(),
     url='http://dev.entrouvert.org/projects/eopayment/',
     author="Entr'ouvert",
     author_email="info@entrouvert.com",
