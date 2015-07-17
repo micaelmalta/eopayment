@@ -137,6 +137,7 @@ class Payment(PaymentCommon):
            production     194.2.160.66  194.2.122.158
            backup         195.25.7.146  195.25.7.166
     '''
+    callback = None
 
     description = {
         'caption': _('Paybox'),
@@ -184,6 +185,10 @@ class Payment(PaymentCommon):
                     ('978', 'Euro'),
                 ),
             },
+            {
+                'name': 'callback',
+                'caption': _('Callback URL'),
+            },
         ]
     }
 
@@ -204,8 +209,8 @@ class Payment(PaymentCommon):
         d['PBX_TIME'] = kwargs.get('time') or (unicode(datetime.datetime.utcnow().isoformat('T')).split('.')[0]+'+00:00')
         d['PBX_ERRORCODETEST'] = '77777'
         d['PBX_ARCHIVAGE'] = transaction_id
-        if 'callback' in kwargs:
-            d['PBX_REPONDRE_A'] = unicode(kwargs['callback'])
+        if self.callback:
+            d['PBX_REPONDRE_A'] = unicode(self.callback)
         d = d.items()
         d = sign(d, self.shared_secret.decode('hex'))
         url = URLS[self.platform]

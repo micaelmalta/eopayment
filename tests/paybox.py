@@ -33,6 +33,7 @@ class PayboxTests(TestCase):
             'rang': '001',
             'identifiant': '413536281',
             'shared_secret': key,
+            'callback': 'http://example.com/callback',
         })
         time = '2015-07-15T18:26:32+02:00'
         email = 'bdauvergne@entrouvert.com'
@@ -64,9 +65,10 @@ class PayboxTests(TestCase):
                     'PBX_TOTAL': '1999',
                     'PBX_DEVISE': '978',
                     'PBX_HASH': 'SHA512',
-                    'PBX_HMAC': '41DF99DBE6EAD9F6E2C82C3560A7407AA90E170D69BE14E526EC0589F54A0351BE4FA8E03BCAF5E36D2A3A1060425ACF2A2DE945B1C8422094A34C1CEF48202C',
+                    'PBX_HMAC': 'BA570AF3F5FBF741D3746A9778DB421A68A339669502E9FB2459D0B01EE9E9A88BD499300E6BCE99F729D8FEEE72BDC2F95521F06D2DA1C0924905D1244C6F17',
                     'PBX_ARCHIVAGE': '1234',
                     'PBX_ERRORCODETEST': '77777',
+                    'PBX_REPONDRE_A': 'http://example.com/callback',
                 }
                 self.assertIn(name, values)
                 self.assertEqual(node.attrib['value'], values[name])
