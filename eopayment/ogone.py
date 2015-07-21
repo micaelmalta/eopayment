@@ -438,11 +438,6 @@ class Payment(PaymentCommon):
                 'default': 'EUR',
                 'choices': ('EUR',),
             },
-            {'name': 'accepturl',
-                'caption': N_(u'Monnaie'),
-                'default': 'EUR',
-                'choices': ('EUR',),
-            },
         ]
     }
 
