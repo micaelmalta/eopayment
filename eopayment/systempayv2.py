@@ -36,17 +36,14 @@ VADS_CTX_MODE = 'vads_ctx_mode'
 
 
 def isonow():
-    return dt.datetime.utcnow()  \
-            .isoformat('T')   \
-            .replace('-', '')  \
-            .replace('T', '')  \
-            .replace(':', '')[:14]
+    return dt.datetime.utcnow().isoformat('T').replace('-', '') \
+        .replace('T', '').replace(':', '')[:14]
 
 
 class Parameter:
     def __init__(self, name, ptype, code, max_length=None, length=None,
-            needed=False, default=None, choices=None, description=None,
-            help_text=None):
+                 needed=False, default=None, choices=None, description=None,
+                 help_text=None):
         self.name = name
         self.ptype = ptype
         self.code = code
@@ -80,69 +77,69 @@ class Parameter:
 
 
 PARAMETERS = [
-        # amount as euro cents
-        Parameter('vads_action_mode', None, 47, needed=True,
-            default='INTERACTIVE', choices=('SILENT', 'INTERACTIVE')),
-        Parameter('vads_amount', 'n', 9, max_length=12, needed=True),
-        Parameter('vads_capture_delay', 'n', 6, max_length=3, default=''),
-        Parameter('vads_contrib', 'ans', 31, max_length=255,
-                  default='eopayment'),
-        # defaut currency = EURO, norme ISO4217
-        Parameter('vads_currency', 'n', 10, length=3, default=978,
-                  needed=True),
-        Parameter('vads_cust_address', 'an', 19, max_length=255),
-        # code ISO 3166
-        Parameter('vads_cust_country', 'a', 22, length=2, default='FR'),
-        Parameter('vads_cust_email', 'an@', 15, max_length=127),
-        Parameter('vads_cust_id', 'an', 16, max_length=63),
-        Parameter('vads_cust_name', 'ans', 18, max_length=127),
-        Parameter('vads_cust_phone', 'an', 23, max_length=63),
-        Parameter('vads_cust_title', 'an', 17, max_length=63),
-        Parameter('vads_cust_city', 'an', 21, max_length=63),
-        Parameter('vads_cust_zip', 'an', 20, max_length=63),
-        Parameter('vads_ctx_mode', 'a', 11, needed=True, choices=('TEST',
-            'PRODUCTION'), default='TEST'),
-        # ISO 639 code
-        Parameter('vads_language', 'a', 12, length=2, default='fr'),
-        Parameter('vads_order_id', 'an-', 13, max_length=32),
-        Parameter('vads_order_info', 'an', 14, max_length=255,
-            description=_(u"Complément d'information 1")),
-        Parameter('vads_order_info2', 'an', 14, max_length=255,
-            description=_(u"Complément d'information 2")),
-        Parameter('vads_order_info3', 'an', 14, max_length=255,
-            description=_(u"Complément d'information 3")),
-        Parameter('vads_page_action', None, 46, needed=True, default='PAYMENT',
-            choices=('PAYMENT',)),
-        Parameter('vads_payment_cards', 'an;', 8, max_length=127, default='',
-            description=_(u'Liste des cartes de paiement acceptées'),
-            help_text=_(u'vide ou des valeurs sépareés par un point-virgule parmi '
-            'AMEX, AURORE-MULTI, BUYSTER, CB, COFINOGA, E-CARTEBLEUE, '
-            'MASTERCARD, JCB, MAESTRO, ONEY, ONEY_SANDBOX, PAYPAL, '
-            'PAYPAL_SB, PAYSAFECARD, VISA')),
-        # must be SINGLE or MULTI with parameters
-        Parameter('vads_payment_config', '', 07, default='SINGLE',
-            choices=('SINGLE', 'MULTI'), needed=True),
-        Parameter('vads_return_mode', None, 48, default='GET',
-            choices=('', 'NONE', 'POST', 'GET')),
-        Parameter('signature', 'an', None, length=40),
-        Parameter('vads_site_id', 'n', 02, length=8, needed=True,
-            description=_(u'Identifiant de la boutique')),
-        Parameter('vads_theme_config', 'ans', 32, max_length=255),
-        Parameter(VADS_TRANS_DATE, 'n', 04, length=14, needed=True,
-            default=isonow),
-        Parameter('vads_trans_id', 'n', 03, length=6, needed=True),
-        Parameter('vads_validation_mode', 'n', 5, max_length=1,
-                  choices=('', 0, 1), default=''),
-        Parameter('vads_version', 'an', 01, default='V2', needed=True,
-            choices=('V2',)),
-        Parameter('vads_url_success', 'ans', 24, max_length=127),
-        Parameter('vads_url_referral', 'ans', 26, max_length=127),
-        Parameter('vads_url_refused', 'ans', 25, max_length=127),
-        Parameter('vads_url_cancel', 'ans', 27, max_length=127),
-        Parameter('vads_url_error', 'ans', 29, max_length=127),
-        Parameter('vads_url_return', 'ans', 28, max_length=127),
-        Parameter('vads_user_info', 'ans', 61, max_length=255),
-        Parameter('vads_contracts', 'ans', 62, max_length=255),
+    # amount as euro cents
+    Parameter('vads_action_mode', None, 47, needed=True, default='INTERACTIVE',
+              choices=('SILENT', 'INTERACTIVE')),
+    Parameter('vads_amount', 'n', 9, max_length=12, needed=True),
+    Parameter('vads_capture_delay', 'n', 6, max_length=3, default=''),
+    Parameter('vads_contrib', 'ans', 31, max_length=255, default='eopayment'),
+    # defaut currency = EURO, norme ISO4217
+    Parameter('vads_currency', 'n', 10, length=3, default=978, needed=True),
+    Parameter('vads_cust_address', 'an', 19, max_length=255),
+    # code ISO 3166
+    Parameter('vads_cust_country', 'a', 22, length=2, default='FR'),
+    Parameter('vads_cust_email', 'an@', 15, max_length=127),
+    Parameter('vads_cust_id', 'an', 16, max_length=63),
+    Parameter('vads_cust_name', 'ans', 18, max_length=127),
+    Parameter('vads_cust_phone', 'an', 23, max_length=63),
+    Parameter('vads_cust_title', 'an', 17, max_length=63),
+    Parameter('vads_cust_city', 'an', 21, max_length=63),
+    Parameter('vads_cust_zip', 'an', 20, max_length=63),
+    Parameter('vads_ctx_mode', 'a', 11, needed=True, choices=('TEST',
+                                                              'PRODUCTION'),
+              default='TEST'),
+    # ISO 639 code
+    Parameter('vads_language', 'a', 12, length=2, default='fr'),
+    Parameter('vads_order_id', 'an-', 13, max_length=32),
+    Parameter('vads_order_info', 'an', 14, max_length=255,
+              description=_(u"Complément d'information 1")),
+    Parameter('vads_order_info2', 'an', 14, max_length=255,
+              description=_(u"Complément d'information 2")),
+    Parameter('vads_order_info3', 'an', 14, max_length=255,
+              description=_(u"Complément d'information 3")),
+    Parameter('vads_page_action', None, 46, needed=True, default='PAYMENT',
+              choices=('PAYMENT',)),
+    Parameter('vads_payment_cards', 'an;', 8, max_length=127, default='',
+              description=_(u'Liste des cartes de paiement acceptées'),
+              help_text=_(u'vide ou des valeurs sépareés par un point-virgule '
+                          'parmi AMEX, AURORE-MULTI, BUYSTER, CB, COFINOGA, '
+                          'E-CARTEBLEUE, MASTERCARD, JCB, MAESTRO, ONEY, '
+                          'ONEY_SANDBOX, PAYPAL, PAYPAL_SB, PAYSAFECARD, '
+                          'VISA')),
+    # must be SINGLE or MULTI with parameters
+    Parameter('vads_payment_config', '', 07, default='SINGLE',
+              choices=('SINGLE', 'MULTI'), needed=True),
+    Parameter('vads_return_mode', None, 48, default='GET',
+              choices=('', 'NONE', 'POST', 'GET')),
+    Parameter('signature', 'an', None, length=40),
+    Parameter('vads_site_id', 'n', 02, length=8, needed=True,
+              description=_(u'Identifiant de la boutique')),
+    Parameter('vads_theme_config', 'ans', 32, max_length=255),
+    Parameter(VADS_TRANS_DATE, 'n', 04, length=14, needed=True,
+              default=isonow),
+    Parameter('vads_trans_id', 'n', 03, length=6, needed=True),
+    Parameter('vads_validation_mode', 'n', 5, max_length=1, choices=('', 0, 1),
+              default=''),
+    Parameter('vads_version', 'an', 01, default='V2', needed=True,
+              choices=('V2',)),
+    Parameter('vads_url_success', 'ans', 24, max_length=127),
+    Parameter('vads_url_referral', 'ans', 26, max_length=127),
+    Parameter('vads_url_refused', 'ans', 25, max_length=127),
+    Parameter('vads_url_cancel', 'ans', 27, max_length=127),
+    Parameter('vads_url_error', 'ans', 29, max_length=127),
+    Parameter('vads_url_return', 'ans', 28, max_length=127),
+    Parameter('vads_user_info', 'ans', 61, max_length=255),
+    Parameter('vads_contracts', 'ans', 62, max_length=255),
 ]
 PARAMETER_MAP = dict(((parameter.name,
                        parameter) for parameter in PARAMETERS))
@@ -150,25 +147,25 @@ PARAMETER_MAP = dict(((parameter.name,
 AUTH_RESULT_MAP = CB_RESPONSE_CODES
 
 RESULT_MAP = {
-        '00': 'paiement réalisé avec succés',
-        '02': 'le commerçant doit contacter la banque du porteur',
-        '05': 'paiement refusé',
-        '17': 'annulation client',
-        '30': 'erreur de format',
-        '96': 'erreur technique lors du paiement'
+    '00': 'paiement réalisé avec succés',
+    '02': 'le commerçant doit contacter la banque du porteur',
+    '05': 'paiement refusé',
+    '17': 'annulation client',
+    '30': 'erreur de format',
+    '96': 'erreur technique lors du paiement'
 }
 
 EXTRA_RESULT_MAP = {
-        '': "Pas de contrôle effectué",
-        '00': "Tous les contrôles se sont déroulés avec succés",
-        '02': "La carte a dépassé l'encours autorisé",
-        '03': "La carte appartient à la liste grise du commerçant",
-        '04': "Le pays d'émission de la carte appartient à la liste grise du \
-commerçant ou le pays d'émission de la carte n'appartient pas à la \
-liste blanche du commerçant",
-        '05': "L'addresse IP appartient à la liste grise du commerçant",
-        '99': "Problème technique recontré par le serveur lors du traitement \
-d'un des contrôles locaux",
+    '': "Pas de contrôle effectué",
+    '00': "Tous les contrôles se sont déroulés avec succés",
+    '02': "La carte a dépassé l'encours autorisé",
+    '03': "La carte appartient à la liste grise du commerçant",
+    '04': "Le pays d'émission de la carte appartient à la liste grise du "
+    "commerçant ou le pays d'émission de la carte n'appartient pas à la "
+    "liste blanche du commerçant",
+    '05': "L'addresse IP appartient à la liste grise du commerçant",
+    '99': "Problème technique recontré par le serveur lors du traitement "
+    "d'un des contrôles locaux",
 }
 
 
@@ -255,13 +252,15 @@ class Payment(PaymentCommon):
         self.options = options
         self.logger = logger
 
-    def request(self, amount, name=None, address=None, email=None, phone=None, info1=None,
-            info2=None, info3=None, next_url=None, **kwargs):
+    def request(self, amount, name=None, address=None, email=None, phone=None,
+                info1=None, info2=None, info3=None, next_url=None, **kwargs):
         '''
            Create the URL string to send a request to SystemPay
         '''
-        self.logger.debug('%s amount %s name %s address %s email %s phone %s next_url %s info1 %s info2 %s info3 %s kwargs: %s',
-                __name__, amount, name, address, email, phone, info1, info2, info3, next_url, kwargs)
+        self.logger.debug('%s amount %s name %s address %s email %s phone %s '
+                          'next_url %s info1 %s info2 %s info3 %s kwargs: %s',
+                          __name__, amount, name, address, email, phone, info1,
+                          info2, info3, next_url, kwargs)
         # amount unit is cents
         amount = '%.0f' % (100 * amount)
         kwargs.update(add_vads({'amount': amount}))
@@ -284,8 +283,8 @@ class Payment(PaymentCommon):
         if info3 is not None:
             kwargs['vads_order_info3'] = info3
 
-        transaction_id = self.transaction_id(6,
-                string.digits, 'systempay', self.options[VADS_SITE_ID])
+        transaction_id = self.transaction_id(6, string.digits, 'systempay',
+                                             self.options[VADS_SITE_ID])
         kwargs[VADS_TRANS_ID] = transaction_id
         fields = kwargs
         for parameter in PARAMETERS:
@@ -337,8 +336,8 @@ class Payment(PaymentCommon):
             elif v in ('05', '00'):
                 if VADS_EXTRA_RESULT in fields:
                     v = fields[VADS_EXTRA_RESULT]
-                    copy[VADS_EXTRA_RESULT] = '%s: %s' % (v,
-                            EXTRA_RESULT_MAP.get(v, 'Code inconnu'))
+                    extra_result_name = EXTRA_RESULT_MAP.get(v, 'Code inconnu')
+                    copy[VADS_EXTRA_RESULT] = '%s: %s' % (v, extra_result_name)
                     bank_status.append(copy[VADS_EXTRA_RESULT])
         self.logger.debug('checking systempay response on:')
         for key in sorted(fields.keys()):
@@ -346,7 +345,7 @@ class Payment(PaymentCommon):
         signature = self.signature(fields)
         signature_result = signature == fields[SIGNATURE]
         self.logger.debug('signature check: %s <!> %s', signature,
-                fields[SIGNATURE])
+                          fields[SIGNATURE])
         if not signature_result:
             bank_status.append('invalid signature')
 
@@ -359,18 +358,19 @@ class Payment(PaymentCommon):
         # the VADS_AUTH_NUMBER is the number to match payment in bank logs
         copy[self.BANK_ID] = copy.get(VADS_AUTH_NUMBER, '')
         response = PaymentResponse(
-                result=result,
-                signed=signature_result,
-                bank_data=copy,
-                order_id=transaction_id,
-                transaction_id=copy.get(VADS_AUTH_NUMBER),
-                bank_status=' - '.join(bank_status),
-                test=test)
+            result=result,
+            signed=signature_result,
+            bank_data=copy,
+            order_id=transaction_id,
+            transaction_id=copy.get(VADS_AUTH_NUMBER),
+            bank_status=' - '.join(bank_status),
+            test=test)
         return response
 
     def signature(self, fields):
         self.logger.debug('got fields %s to sign' % fields)
-        ordered_keys = sorted([key for key in fields.keys() if key.startswith('vads_')])
+        ordered_keys = sorted(
+            [key for key in fields.keys() if key.startswith('vads_')])
         self.logger.debug('ordered keys %s' % ordered_keys)
         ordered_fields = [str(fields[key]) for key in ordered_keys]
         secret = getattr(self, 'secret_%s' % fields['vads_ctx_mode'].lower())
@@ -386,13 +386,31 @@ if __name__ == '__main__':
         secret_test='',
         site_id='',
         ctx_mode='TEST'))
-    qs = 'vads_amount=100&vads_auth_mode=FULL&vads_auth_number=767712&vads_auth_result=00&vads_capture_delay=0&vads_card_brand=CB&vads_card_number=497010XXXXXX0000&vads_payment_certificate=9da32cc109882089e1b3fb80888ebbef072f70b7&vads_ctx_mode=TEST&vads_currency=978&vads_effective_amount=100&vads_site_id=&vads_trans_date=20120529132547&vads_trans_id=620594&vads_validation_mode=0&vads_version=V2&vads_warranty_result=NO&vads_payment_src=&vads_order_id=---&vads_cust_country=FR&vads_contrib=eopayment&vads_contract_used=2334233&vads_expiry_month=6&vads_expiry_year=2013&vads_pays_ip=FR&vads_identifier=&vads_subscription=&vads_threeds_enrolled=&vads_threeds_cavv=&vads_threeds_eci=&vads_threeds_xid=&vads_threeds_cavvAlgorithm=&vads_threeds_status=&vads_threeds_sign_valid=&vads_threeds_error_code=&vads_threeds_exit_status=&vads_result=00&vads_extra_result=&vads_card_country=FR&vads_language=fr&vads_action_mode=INTERACTIVE&vads_page_action=PAYMENT&vads_payment_config=SINGLE&signature=9c4f2bf905bb06b008b07090905adf36638d8ece&'
+    qs = 'vads_amount=100&vads_auth_mode=FULL&vads_auth_number=767712&vads_aut' \
+         'h_result=00&vads_capture_delay=0&vads_card_brand=CB&vads_card_number' \
+         '=497010XXXXXX0000&vads_payment_certificate=9da32cc109882089e1b3fb808' \
+         '88ebbef072f70b7&vads_ctx_mode=TEST&vads_currency=978&vads_effective_' \
+         'amount=100&vads_site_id=&vads_trans_date=20120529132547&vads' \
+         '_trans_id=620594&vads_validation_mode=0&vads_version=V2&vads_warrant' \
+         'y_result=NO&vads_payment_src=&vads_order_id=---&vads_cust_country=FR' \
+         '&vads_contrib=eopayment&vads_contract_used=2334233&vads_expiry_month' \
+         '=6&vads_expiry_year=2013&vads_pays_ip=FR&vads_identifier=&vads_subsc' \
+         'ription=&vads_threeds_enrolled=&vads_threeds_cavv=&vads_threeds_eci=' \
+         '&vads_threeds_xid=&vads_threeds_cavvAlgorithm=&vads_threeds_status=&' \
+         'vads_threeds_sign_valid=&vads_threeds_error_code=&vads_threeds_exit_' \
+         'status=&vads_result=00&vads_extra_result=&vads_card_country=FR&vads_' \
+         'language=fr&vads_action_mode=INTERACTIVE&vads_page_action=PAYMENT&va' \
+         'ds_payment_config=SINGLE&signature=9c4f2bf905bb06b008b07090905adf366' \
+         '38d8ece&'
     response = p.response(qs)
     assert response.signed and response.result
 
     # Test vector from Systempayv2 documentation
     p = Payment(dict(secret_test='1122334455667788'))
-    qs = 'vads_version=V2&vads_page_action=PAYMENT&vads_action_mode=INTERACTIVE&vads_payment_config=SINGLE&vads_site_id=12345678&vads_ctx_mode=TEST&vads_trans_id=654321&vads_trans_date=20090501193530&vads_amount=1524&vads_currency=978'
+    qs = 'vads_version=V2&vads_page_action=PAYMENT&vads_action_mode=INTERACTIV' \
+         'E&vads_payment_config=SINGLE&vads_site_id=12345678&vads_ctx_mode=TES' \
+         'T&vads_trans_id=654321&vads_trans_date=20090501193530&vads_amount=15' \
+         '24&vads_currency=978'
     qs = urlparse.parse_qs(qs)
     for key in qs.keys():
         qs[key] = qs[key][0]
