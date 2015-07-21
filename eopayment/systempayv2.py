@@ -5,10 +5,9 @@ import hashlib
 import logging
 import string
 import urlparse
-import urllib
 from gettext import gettext as _
 
-from common import PaymentCommon, PaymentResponse, URL, PAID, ERROR
+from common import PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form
 from cb import CB_RESPONSE_CODES
 
 __all__ = ['Payment']
@@ -263,36 +262,36 @@ class Payment(PaymentCommon):
                           info2, info3, next_url, kwargs)
         # amount unit is cents
         amount = '%.0f' % (100 * amount)
-        kwargs.update(add_vads({'amount': amount}))
+        kwargs.update(add_vads({'amount': unicode(amount)}))
         if amount < 0:
             raise ValueError('amount must be an integer >= 0')
         if next_url:
-            kwargs[VADS_URL_RETURN] = next_url
+            kwargs[VADS_URL_RETURN] = unicode(next_url)
         if name is not None:
-            kwargs['vads_cust_name'] = name
+            kwargs['vads_cust_name'] = unicode(name)
         if address is not None:
-            kwargs['vads_cust_address'] = address
+            kwargs['vads_cust_address'] = unicode(address)
         if email is not None:
-            kwargs['vads_cust_email'] = email
+            kwargs['vads_cust_email'] = unicode(email)
         if phone is not None:
-            kwargs['vads_cust_phone'] = phone
+            kwargs['vads_cust_phone'] = unicode(phone)
         if info1 is not None:
-            kwargs['vads_order_info'] = info1
+            kwargs['vads_order_info'] = unicode(info1)
         if info2 is not None:
-            kwargs['vads_order_info2'] = info2
+            kwargs['vads_order_info2'] = unicode(info2)
         if info3 is not None:
-            kwargs['vads_order_info3'] = info3
+            kwargs['vads_order_info3'] = unicode(info3)
 
         transaction_id = self.transaction_id(6, string.digits, 'systempay',
                                              self.options[VADS_SITE_ID])
-        kwargs[VADS_TRANS_ID] = transaction_id
+        kwargs[VADS_TRANS_ID] = unicode(transaction_id)
         fields = kwargs
         for parameter in PARAMETERS:
             name = parameter.name
             # import default parameters from configuration
             if name not in fields \
                     and name in self.options:
-                fields[name] = self.options[name]
+                fields[name] = unicode(self.options[name])
             # import default parameters from module
             if name not in fields and parameter.default is not None:
                 if callable(parameter.default):
@@ -300,13 +299,17 @@ class Payment(PaymentCommon):
                 else:
                     fields[name] = parameter.default
         check_vads(fields)
-        fields[SIGNATURE] = self.signature(fields)
+        fields[SIGNATURE] = unicode(self.signature(fields))
         self.logger.debug('%s request contains fields: %s', __name__, fields)
-        url = '%s?%s' % (SERVICE_URL, urllib.urlencode(fields))
-        self.logger.debug('%s return url %s', __name__, url)
         transaction_id = '%s_%s' % (fields[VADS_TRANS_DATE], transaction_id)
         self.logger.debug('%s transaction id: %s', __name__, transaction_id)
-        return transaction_id, URL, url
+        form = Form(
+                url=SERVICE_URL,
+                method='POST',
+                fields=[{'type': 'hidden',
+                        'name': name,
+                        'value': value} for name, value in fields.iteritems()])
+        return transaction_id, FORM, form
 
     def response(self, query_string, **kwargs):
         fields = urlparse.parse_qs(query_string, True)
