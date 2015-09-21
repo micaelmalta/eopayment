@@ -65,9 +65,8 @@ class PayboxTests(TestCase):
                     'PBX_TOTAL': '1999',
                     'PBX_DEVISE': '978',
                     'PBX_HASH': 'SHA512',
-                    'PBX_HMAC': 'BA570AF3F5FBF741D3746A9778DB421A68A339669502E9FB2459D0B01EE9E9A88BD499300E6BCE99F729D8FEEE72BDC2F95521F06D2DA1C0924905D1244C6F17',
+                    'PBX_HMAC': '88CE727DAB03EB87DE1637AAE01C49A57566A932ABEEB7B788620665ADCA148B732BA8EC50866406ADF308CD78FCA683106041FFEFF1837181C03E784211A61A',
                     'PBX_ARCHIVAGE': '1234',
-                    'PBX_ERRORCODETEST': '77777',
                     'PBX_REPONDRE_A': 'http://example.com/callback',
                 }
                 self.assertIn(name, values)

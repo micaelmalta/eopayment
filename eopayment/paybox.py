@@ -207,7 +207,6 @@ class Payment(PaymentCommon):
         d['PBX_RETOUR'] = 'montant:M;reference:R;code_autorisation:A;erreur:E;signature:K'
         d['PBX_HASH'] = 'SHA512'
         d['PBX_TIME'] = kwargs.get('time') or (unicode(datetime.datetime.utcnow().isoformat('T')).split('.')[0]+'+00:00')
-        d['PBX_ERRORCODETEST'] = '77777'
         d['PBX_ARCHIVAGE'] = transaction_id
         if self.callback:
             d['PBX_REPONDRE_A'] = unicode(self.callback)
