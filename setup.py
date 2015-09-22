@@ -72,11 +72,9 @@ def get_version():
                              stderr=subprocess.PIPE)
         result = p.communicate()[0]
         if p.returncode == 0:
-            return result.split()[0][1:].replace('-', '.').replace('.g', '+g')
-        else:
-            return '0.0.0+%s' % len(
-                subprocess.check_output(
-                    ['git', 'rev-list', 'HEAD']).splitlines())
+            version = result.split()[0][1:]
+            version = version.replace('-', '.')
+            return version
     return '0.0.0'
 
 setuptools.setup(
