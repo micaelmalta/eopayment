@@ -385,29 +385,6 @@ class Payment(PaymentCommon):
         return sign
 
 if __name__ == '__main__':
-    p = Payment(dict(
-        secret_test='',
-        site_id='',
-        ctx_mode='TEST'))
-    qs = 'vads_amount=100&vads_auth_mode=FULL&vads_auth_number=767712&vads_aut' \
-         'h_result=00&vads_capture_delay=0&vads_card_brand=CB&vads_card_number' \
-         '=497010XXXXXX0000&vads_payment_certificate=9da32cc109882089e1b3fb808' \
-         '88ebbef072f70b7&vads_ctx_mode=TEST&vads_currency=978&vads_effective_' \
-         'amount=100&vads_site_id=&vads_trans_date=20120529132547&vads' \
-         '_trans_id=620594&vads_validation_mode=0&vads_version=V2&vads_warrant' \
-         'y_result=NO&vads_payment_src=&vads_order_id=---&vads_cust_country=FR' \
-         '&vads_contrib=eopayment&vads_contract_used=2334233&vads_expiry_month' \
-         '=6&vads_expiry_year=2013&vads_pays_ip=FR&vads_identifier=&vads_subsc' \
-         'ription=&vads_threeds_enrolled=&vads_threeds_cavv=&vads_threeds_eci=' \
-         '&vads_threeds_xid=&vads_threeds_cavvAlgorithm=&vads_threeds_status=&' \
-         'vads_threeds_sign_valid=&vads_threeds_error_code=&vads_threeds_exit_' \
-         'status=&vads_result=00&vads_extra_result=&vads_card_country=FR&vads_' \
-         'language=fr&vads_action_mode=INTERACTIVE&vads_page_action=PAYMENT&va' \
-         'ds_payment_config=SINGLE&signature=9c4f2bf905bb06b008b07090905adf366' \
-         '38d8ece&'
-    response = p.response(qs)
-    assert response.signed and response.result
-
     # Test vector from Systempayv2 documentation
     p = Payment(dict(secret_test='1122334455667788'))
     qs = 'vads_version=V2&vads_page_action=PAYMENT&vads_action_mode=INTERACTIV' \
