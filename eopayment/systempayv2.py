@@ -12,8 +12,6 @@ from cb import CB_RESPONSE_CODES
 
 __all__ = ['Payment']
 
-SERVICE_URL = "https://paiement.systempay.fr/vads-payment/"
-LOGGER = logging.getLogger(__name__)
 VADS_TRANS_DATE = 'vads_trans_date'
 VADS_AUTH_NUMBER = 'vads_auth_number'
 VADS_AUTH_RESULT = 'vads_auth_result'
@@ -211,22 +209,24 @@ class Payment(PaymentCommon):
             'vads_return_mode': 'NONE'})
 
     '''
+    service_url = "https://paiement.systempay.fr/vads-payment/"
+
     description = {
         'caption': 'SystemPay, système de paiment du groupe BPCE',
         'parameters': [
             {'name': 'service_url',
-                'default': SERVICE_URL,
+                'default': service_url,
                 'caption': _(u'URL du service de paiment'),
                 'help_text': _(u'ne pas modifier si vous ne savez pas'),
                 'validation': lambda x: x.startswith('http'),
                 'required': True, },
             {'name': 'secret_test',
                 'caption': _(u'Secret pour la configuration de TEST'),
-                'validation': str.isdigit,
+                'validation': lambda value: str.isdigit(value),
                 'required': True, },
             {'name': 'secret_production',
                 'caption': _(u'Secret pour la configuration de PRODUCTION'),
-                'validation': str.isdigit, },
+                'validation': lambda value: str.isdigit(value), },
         ]
     }
 
@@ -236,20 +236,20 @@ class Payment(PaymentCommon):
         parameter = PARAMETER_MAP[name]
         x = {'name': name,
              'caption': parameter.description or name,
-             'validation': parameter.check_value,
+             'validation': lambda value: parameter.check_value(value),
              'default': parameter.default,
              'required': parameter.needed,
              'help_text': parameter.help_text,
              'max_length': parameter.max_length}
         description['parameters'].append(x)
 
-    def __init__(self, options, logger=LOGGER):
-        self.service_url = options.pop('service_url', SERVICE_URL)
+    def __init__(self, options, logger=None):
+        self.service_url = options.pop('service_url', self.service_url)
         self.secret_test = options.pop('secret_test')
         self.secret_production = options.pop('secret_production', None)
         options = add_vads(options)
         self.options = options
-        self.logger = logger
+        self.logger = logger or logging.getLogger(__name__)
 
     def request(self, amount, name=None, address=None, email=None, phone=None,
                 info1=None, info2=None, info3=None, next_url=None, **kwargs):
@@ -304,7 +304,7 @@ class Payment(PaymentCommon):
         transaction_id = '%s_%s' % (fields[VADS_TRANS_DATE], transaction_id)
         self.logger.debug('%s transaction id: %s', __name__, transaction_id)
         form = Form(
-                url=SERVICE_URL,
+                url=self.service_url,
                 method='POST',
                 fields=[{'type': 'hidden',
                         'name': name,
@@ -379,7 +379,7 @@ class Payment(PaymentCommon):
         secret = getattr(self, 'secret_%s' % fields['vads_ctx_mode'].lower())
         signed_data = '+'.join(ordered_fields)
         signed_data = '%s+%s' % (signed_data, secret)
-        self.logger.debug('generating signature on «%s»' % signed_data)
+        self.logger.debug(u'generating signature on «%s»' % signed_data)
         sign = hashlib.sha1(signed_data).hexdigest()
         self.logger.debug('signature «%s»' % sign)
         return sign
