@@ -17,6 +17,7 @@ Services supported are:
 - Ogone
 - Paybox
 - SPPlus by Caisse d'épargne (obsolete)
+- Payzen
 
 You can emit payment request under a simple API which takes as input a
 dictionnary as configuration and an amount to pay. You get back a
