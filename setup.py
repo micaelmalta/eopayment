@@ -96,4 +96,4 @@ setuptools.setup(
     install_requires=[
         'pycrypto >= 2.5'
     ],
-    cmdclass={'test': TestCommand, 'sdist': eo_sdist})
+)
