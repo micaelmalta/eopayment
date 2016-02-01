@@ -2,7 +2,7 @@ Python module to interface with French's bank online credit card processing
 services.
 
 Services supported are:
-- ATOS/SIP used by:
+- ATOS/SIPS used by:
   - BNP under the name Mercanet,
   - Banque Populaire (before 2010/2011) under the name Cyberplus,
   - CCF under the name Elysnet,
@@ -25,10 +25,16 @@ from those services, reporting whether the transaction was successful and which
 one it was. The full content (which is specific to the service) is also
 reported for logging purpose.
 
-For SystemPay and SPPlus the module is totally independent from the respective
-implementation distributed by the Bank, but for ATOS/SIPS the kit distributed
-by the bank is also needed as the protocol created by ATOS is proprietary and
-not documented.
-
 The spplus and paybox module also depend upon the python Crypto library for DES
 decoding of the merchant key and RSA signature validation on the responses.
+
+Changelog
+=========
+
+1.4
+---
+- add sips2 backend to conform with version 2.3 of their interface
+
+1.3
+---
+- add payzen backend
