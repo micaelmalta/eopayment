@@ -135,12 +135,12 @@ class Payment(PaymentCommon):
     def get_url(self):
         return self.URL[self.platform]
 
-    def request(self, amount, name=None, address=None, email=None, phone=None, info1=None,
-                info2=None, info3=None, next_url=None, **kwargs):
+    def request(self, amount, name=None, address=None, email=None, phone=None,
+                orderid=None, info1=None, info2=None, info3=None, next_url=None, **kwargs):
         data = self.get_data()
         transaction_id = self.transaction_id(6, string.digits, 'sips2', data['merchantId'])
         data['transactionReference'] = unicode(transaction_id)
-        data['orderId'] = unicode(uuid.uuid4()).replace('-', '')
+        data['orderId'] = orderid or unicode(uuid.uuid4()).replace('-', '')
         data['amount'] = unicode(int(Decimal(amount) * 100))
         if email:
             data['billingContact.email'] = email

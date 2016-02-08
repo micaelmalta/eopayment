@@ -48,8 +48,8 @@ class Payment(PaymentCommon):
         self.numcli = options.pop('numcli', '')
         self.logger = logger
 
-    def request(self, amount, next_url=None, exer=None, refdet=None,
-            objet=None, email=None, saisie=None, **kwargs):
+    def request(self, amount, next_url=None, exer=None, orderid=None,
+            refdet=None, objet=None, email=None, saisie=None, **kwargs):
         try:
             montant = Decimal(amount)
             if Decimal('0') > montant > Decimal('9999.99'):
@@ -73,6 +73,7 @@ class Payment(PaymentCommon):
         except ValueError:
             raise ValueError('EXER format invalide')
         try:
+            refdet = orderid or refdet
             refdet = str(refdet)
             if 6 > len(refdet) > 30:
                 raise ValueError('len(REFDET) < 6 or > 30')

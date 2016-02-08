@@ -72,7 +72,7 @@ class Payment(PaymentCommon):
     }
 
     def request(self, amount, name=None, address=None, email=None, phone=None,
-            info1=None, info2=None, info3=None, next_url=None, **kwargs):
+            orderid=None, info1=None, info2=None, info3=None, next_url=None, **kwargs):
         self.logger.debug('%s amount %s name %s address %s email %s phone %s'
                 ' next_url %s info1 %s info2 %s info3 %s kwargs: %s',
                 __name__, amount, name, address, email, phone, info1, info2, info3, next_url, kwargs)
@@ -89,7 +89,7 @@ class Payment(PaymentCommon):
                 'origin': self.origin
         }
         query.update(dict(name=name, address=address, email=email, phone=phone,
-            info1=info1, info2=info2, info3=info3))
+            orderid=orderid, info1=info1, info2=info2, info3=info3))
         for key in query.keys():
             if query[key] is None:
                 del query[key]
@@ -128,13 +128,11 @@ if __name__ == '__main__':
     p = Payment(options)
     retour = 'http://example.com/retour?amount=10.0&direct_notification_url=http%3A%2F%2Fexample.com%2Fdirect_notification_url&email=toto%40example.com&transaction_id=6Tfw2e1bPyYnz7CedZqvdHt7T9XX6T&return_url=http%3A%2F%2Fexample.com%2Fretour&nok=1'
     r = p.response(retour.split('?',1)[1])
-    assert not r[0] 
+    assert not r[0]
     assert r[1] == '6Tfw2e1bPyYnz7CedZqvdHt7T9XX6T'
     assert r[3] is None
     retour = 'http://example.com/retour?amount=10.0&direct_notification_url=http%3A%2F%2Fexample.com%2Fdirect_notification_url&email=toto%40example.com&transaction_id=6Tfw2e1bPyYnz7CedZqvdHt7T9XX6T&return_url=http%3A%2F%2Fexample.com%2Fretour&ok=1&signed=1'
     r = p.response(retour.split('?',1)[1])
-    assert r[0] 
+    assert r[0]
     assert r[1] == '6Tfw2e1bPyYnz7CedZqvdHt7T9XX6T'
     assert r[3] == 'signature ok'
-
-

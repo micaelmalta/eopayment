@@ -23,6 +23,9 @@ CANCELLED = 5
 CANCELED = 5  # typo for backward compatibility
 ERROR = 99
 
+# separator between order and transaction ids
+ORDERID_TRANSACTION_SEPARATOR = '!'
+
 
 class PaymentResponse(object):
     '''Holds a generic view on the result of payment transaction response.

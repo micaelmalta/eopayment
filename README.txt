@@ -29,6 +29,15 @@ reported for logging purpose.
 The spplus and paybox module also depend upon the python Crypto library for DES
 decoding of the merchant key and RSA signature validation on the responses.
 
+Some backends allow to specify the order and transaction ids in different
+fields, in order to allow to match them in payment system backoffice. They are:
+- Payzen
+- SIPS
+- SystemPay
+
+For other backends, the order and transaction ids, separated by '!' are sent in
+order id field, so they can be matched in backoffice.
+
 Changelog
 =========
 

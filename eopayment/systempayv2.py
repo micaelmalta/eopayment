@@ -252,7 +252,8 @@ class Payment(PaymentCommon):
         self.logger = logger or logging.getLogger(__name__)
 
     def request(self, amount, name=None, address=None, email=None, phone=None,
-                info1=None, info2=None, info3=None, next_url=None, **kwargs):
+                orderid=None, info1=None, info2=None, info3=None,
+                next_url=None, **kwargs):
         '''
            Create the URL string to send a request to SystemPay
         '''
@@ -281,6 +282,16 @@ class Payment(PaymentCommon):
             kwargs['vads_order_info2'] = unicode(info2)
         if info3 is not None:
             kwargs['vads_order_info3'] = unicode(info3)
+        if orderid is not None:
+            # check orderid format first
+            name = 'vads_order_id'
+            orderid = unicode(orderid)
+            ptype = 'an-'
+            p = Parameter(name, ptype, 13, max_length=32)
+            if not p.check_value(orderid):
+                raise ValueError('%s value %s is not of the type %s' % (name,
+                                orderid, ptype))
+            kwargs[name] = orderid
 
         transaction_id = self.transaction_id(6, string.digits, 'systempay',
                                              self.options[VADS_SITE_ID])

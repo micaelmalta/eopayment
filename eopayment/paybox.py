@@ -15,7 +15,8 @@ import base64
 from gettext import gettext as _
 import string
 
-from common import PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form
+from common import (PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form,
+        ORDERID_TRANSACTION_SEPARATOR)
 
 __all__ = ['sign', 'Payment']
 
@@ -192,7 +193,7 @@ class Payment(PaymentCommon):
         ]
     }
 
-    def request(self, amount, email, name=None, **kwargs):
+    def request(self, amount, email, name=None, orderid=None, **kwargs):
         d = OrderedDict()
         d['PBX_SITE'] = unicode(self.site)
         d['PBX_RANG'] = unicode(self.rang).strip()[-2:]
@@ -203,6 +204,9 @@ class Payment(PaymentCommon):
             self.transaction_id(12, string.digits, 'paybox', self.site,
                                 self.rang, self.identifiant)
         d['PBX_CMD'] = unicode(transaction_id)
+        # prepend order id command reference
+        if orderid:
+            d['PBX_CMD'] = orderid + ORDERID_TRANSACTION_SEPARATOR + d['PBX_CMD']
         d['PBX_PORTEUR'] = unicode(email)
         d['PBX_RETOUR'] = 'montant:M;reference:R;code_autorisation:A;erreur:E;signature:K'
         d['PBX_HASH'] = 'SHA512'
@@ -252,9 +256,12 @@ class Payment(PaymentCommon):
             bank_status = PAYBOX_ERROR_CODES.get(prefix + suffix)
             if bank_status is not None:
                 break
-
+        orderid = d['reference'][0]
+        # decode order id from returned reference
+        if ORDERID_TRANSACTION_SEPARATOR in orderid:
+            orderid, transaction_id = orderid.split(ORDERID_TRANSACTION_SEPARATOR, 1)
         return PaymentResponse(
-            order_id=d['reference'][0],
+            order_id=orderid,
             signed=signed,
             bank_data=d,
             result=result,

@@ -132,13 +132,14 @@ class Payment(PaymentCommon):
         params.update(self.options)
         return params
 
-    def request(self, amount, name=None, address=None, email=None, phone=None, info1=None,
-            info2=None, info3=None, next_url=None, **kwargs):
+    def request(self, amount, name=None, address=None, email=None, phone=None, orderid=None,
+            info1=None, info2=None, info3=None, next_url=None, **kwargs):
         params = self.get_request_params()
         transaction_id = self.transaction_id(6, string.digits, 'sips',
                 params[MERCHANT_ID])
         params[TRANSACTION_ID] = transaction_id
-        params[ORDER_ID] = str(uuid.uuid4()).replace('-', '')
+        params[ORDER_ID] = orderid or str(uuid.uuid4())
+        params[ORDER_ID] = params[ORDER_ID].replace('-', '')
         params['amount'] = str(int(Decimal(amount) * 100))
         if email:
             params['customer_email'] = email

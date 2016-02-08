@@ -5,7 +5,7 @@ import urlparse
 from decimal import Decimal, ROUND_HALF_UP
 
 from common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
-        ERROR, Form, DENIED, ACCEPTED)
+        ERROR, Form, DENIED, ACCEPTED, ORDERID_TRANSACTION_SEPARATOR)
 def N_(message): return message
 
 ENVIRONMENT_TEST = 'TEST'
@@ -467,7 +467,14 @@ class Payment(PaymentCommon):
 
     def request(self, amount, orderid=None, name=None, email=None,
             language=None, description=None, **kwargs):
-        reference = orderid or self.transaction_id(20, string.digits + string.ascii_letters)
+
+        reference = self.transaction_id(20, string.digits + string.ascii_letters)
+
+        # prepend order id in payment reference
+        if orderid:
+            if len(orderid) > 24:
+                raise ValueError('orderid length exceeds 25 characters')
+            reference = orderid + ORDERID_TRANSACTION_SEPARATOR + self.transaction_id(29-len(orderid), string.digits + string.ascii_letters)
         language = language or self.language
         # convertir en centimes
         amount = Decimal(amount) * 100
@@ -527,6 +534,9 @@ class Payment(PaymentCommon):
             self.logger.error('response STATUS=%s NCERROR=%s NCERRORPLUS=%s',
                     status, error, params.get('NCERRORPLUS', ''))
             result = ERROR
+        # extract reference from received order id
+        if ORDERID_TRANSACTION_SEPARATOR in reference:
+            reference, transaction_id = reference.split(ORDERID_TRANSACTION_SEPARATOR, 1)
         return PaymentResponse(
                 result=result,
                 signed=signed,
