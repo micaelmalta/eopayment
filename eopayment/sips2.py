@@ -144,9 +144,9 @@ class Payment(PaymentCommon):
         transaction_id = self.transaction_id(6, string.digits, 'sips2', data['merchantId'])
         data['transactionReference'] = unicode(transaction_id)
         data['orderId'] = unicode(uuid.uuid4()).replace('-', '')
-        data['Amount'] = unicode(int(Decimal(amount) * 100))
+        data['amount'] = unicode(int(Decimal(amount) * 100))
         if email:
-            data['customerEmail'] = email
+            data['billingContact.email'] = email
         if next_url:
             data['normalReturnUrl'] = next_url
         form = Form(
