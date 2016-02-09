@@ -8,27 +8,24 @@ from gettext import gettext as _
 
 from common import PaymentCommon, FORM, Form, PaymentResponse, PAID, ERROR, CANCELED
 
-'''
-Payment backend module for the ATOS/SIPS system used by many French banks.
-
-It use the middleware given by the bank.
-
-The necessary options are:
-
- - pathfile, to indicate the absolute path of the pathfile file given by the
-   bank,
- - binpath, the path of the directory containing the request and response
-   executables,
-
-All the other needed parameters SHOULD already be set in the parmcom files
-contained in the middleware distribution file.
-
-'''
-
 __all__ = ['Payment']
 
 
 class Payment(PaymentCommon):
+    '''
+    Payment backend module for the ATOS/SIPS system used by many French banks.
+
+    The necessary options are:
+    - merchant_id
+    - secret_key
+    - normal_return_url
+    - automatic_return_url
+
+    It was writtent using the documentation from file:
+
+        Worldline Benelux_Sips_Technical_integration_guide_Version_1.5.pdf
+
+    '''
     URL = {
         'test': 'https://payment-webinit.simu.sips-atos.com/paymentInit',
         'prod': 'https://payment-webinit.sips-atos.com/paymentInit',
