@@ -16,6 +16,8 @@ import Crypto.Cipher.DES
 from common import (PaymentCommon, URL, PaymentResponse, RECEIVED, ACCEPTED,
         PAID, ERROR)
 
+def N_(message): return message
+
 __all__ = ['Payment']
 
 KEY_DES_KEY = '\x45\x1f\xba\x4f\x4c\x3f\xd4\x97'
@@ -96,13 +98,13 @@ class Payment(PaymentCommon):
             'parameters': [
                 {
                     'name': 'normal_return_url',
-                    'caption': _('Normal return URL'),
+                    'caption': N_('Normal return URL'),
                     'default': '',
                     'required': True,
                 },
                 {
                     'name': 'automatic_return_url',
-                    'caption': _('Automatic return URL'),
+                    'caption': N_('Automatic return URL'),
                     'required': False,
                 },
                 {   'name': 'cle',

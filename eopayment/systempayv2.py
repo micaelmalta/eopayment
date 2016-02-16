@@ -4,6 +4,7 @@ import datetime as dt
 import hashlib
 import logging
 import string
+import urlparse
 import warnings
 from gettext import gettext as _
 
