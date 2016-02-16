@@ -26,12 +26,12 @@ class PayboxTests(TestCase):
         self.assertEqual(d['PBX_HMAC'], result)
 
     def test_request(self):
-        key = 'A38701CF023487E7B918A580063A4949F8BC39B09A4A7B236A05C927C228D2BD767CEF587CB80F9EA1EFC64DD26D6C30217368881D11E633C7665437B0E160F4'
+        key = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
         backend = eopayment.Payment('paybox', {
             'platform': 'test',
-            'site': '2352566',
+            'site': '12345678',
             'rang': '001',
-            'identifiant': '413536281',
+            'identifiant': '12345678',
             'shared_secret': key,
             'callback': 'http://example.com/callback',
         })
@@ -56,8 +56,8 @@ class PayboxTests(TestCase):
                 name = node.attrib['name']
                 values = {
                     'PBX_RANG': '01',
-                    'PBX_SITE': '2352566',
-                    'PBX_IDENTIFIANT': '413536281',
+                    'PBX_SITE': '12345678',
+                    'PBX_IDENTIFIANT': '12345678',
                     'PBX_RETOUR': 'montant:M;reference:R;code_autorisation:A;erreur:E;signature:K',
                     'PBX_TIME': time,
                     'PBX_PORTEUR': email,
@@ -65,7 +65,7 @@ class PayboxTests(TestCase):
                     'PBX_TOTAL': '1999',
                     'PBX_DEVISE': '978',
                     'PBX_HASH': 'SHA512',
-                    'PBX_HMAC': '88CE727DAB03EB87DE1637AAE01C49A57566A932ABEEB7B788620665ADCA148B732BA8EC50866406ADF308CD78FCA683106041FFEFF1837181C03E784211A61A',
+                    'PBX_HMAC': 'A0AA37FC3DD46F3233C0AD3BF95242CD71003D98F33DF85124E4423D53759A82A132EC2CC42B7234B22A75F00CF5DA124DF3A34331F3F6B9D7308B2EF09DCA3C',
                     'PBX_ARCHIVAGE': '1234',
                     'PBX_REPONDRE_A': 'http://example.com/callback',
                 }
