@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections
 import urlparse
 import string
 from decimal import Decimal
@@ -126,7 +127,7 @@ class Payment(PaymentCommon):
         return s
 
     def get_data(self):
-        data = {}
+        data = collections.OrderedDict()
         data['merchantId'] = self.merchand_id
         data['keyVersion'] = self.key_version
         data['normalReturnUrl'] = self.normal_return_url
@@ -180,7 +181,7 @@ class Payment(PaymentCommon):
     def decode_data(self, data):
         data = data.split('|')
         data = [map(unicode, p.split('=')) for p in data]
-        return dict(data)
+        return collections.OrderedDict(data)
 
     def check_seal(self, data, seal):
         return seal == self.seal_data(data)
@@ -197,7 +198,7 @@ class Payment(PaymentCommon):
         assert 'Seal' in form
         assert 'InterfaceVersion' in form
         data = self.decode_data(form['Data'][0])
-        seal = form['Seal']
+        seal = form['Seal'][0]
         self.logger.debug('parsed response %r seal %r', data, seal)
         signed = self.check_seal(data, seal)
         response_code = data['responseCode']
