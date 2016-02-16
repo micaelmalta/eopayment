@@ -131,7 +131,7 @@ class Payment(PaymentCommon):
         data['keyVersion'] = self.key_version
         data['normalReturnUrl'] = self.normal_return_url
         if self.automatic_return_url:
-            data['automaticReturnUrl'] = self.automatic_return_url
+            data['automaticResponseUrl'] = self.automatic_return_url
         data['currencyCode'] = self.currency_code
         return data
 
