@@ -7,6 +7,7 @@ from urllib import urlencode
 from urlparse import parse_qs
 from gettext import gettext as _
 import logging
+import warnings
 
 from systempayv2 import isonow
 
@@ -39,7 +40,17 @@ class Payment(PaymentCommon):
                     'help_text': _(u'ne pas modifier si vous ne savez pas'),
                     'validation': lambda x: x.startswith('http'),
                     'required': True,
-                }
+                },
+                {
+                    'name': 'normal_return_url',
+                    'caption': _('Normal return URL (unused by TIPI)'),
+                    'required': False,
+                },
+                {
+                    'name': 'automatic_return_url',
+                    'caption': _('Automatic return URL'),
+                    'required': True,
+                },
             ],
     }
 
@@ -61,9 +72,15 @@ class Payment(PaymentCommon):
                     'a decimal integer with less than 4 digits '
                     'before and 2 digits after the decimal point '
                     ', here it is %s' % repr(amount))
-        if next_url is not None:
-            if not isinstance(next_url, str) or \
-                not next_url.startswith('http'):
+
+        automatic_return_url = self.automatic_return_url
+        if next_url and not automatic_return_url:
+            warnings.warn("passing next_url to request() is deprecated, "
+                          "set automatic_return_url in options", DeprecationWarning)
+            automatic_return_url = next_url
+        if automatic_return_url is not None:
+            if not isinstance(automatic_return_url, str) or \
+                not automatic_return_url.startswith('http'):
                 raise ValueError('URLCL invalid URL format')
         try:
             if exer is not None:
@@ -117,8 +134,8 @@ class Payment(PaymentCommon):
         }
         if exer:
             params['exer'] = exer
-        if next_url:
-            params['urlcl'] = next_url
+        if automatic_return_url:
+            params['urlcl'] = automatic_return_url
         url = '%s?%s' % (self.service_url, urlencode(params))
         return transaction_id, URL, url
 

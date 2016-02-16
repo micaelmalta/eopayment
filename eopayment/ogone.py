@@ -407,6 +407,17 @@ class Payment(PaymentCommon):
     description = {
         'caption': N_('Système de paiement Ogone / Ingenico Payment System e-Commerce'),
         'parameters': [
+            {
+                'name': 'normal_return_url',
+                'caption': N_('Normal return URL'),
+                'default': '',
+                'required': True,
+            },
+            {
+                'name': 'automatic_return_url',
+                'caption': N_('Automatic return URL (ignored, must be set in Ogone backoffice)'),
+                'required': False,
+            },
             {'name': 'environment',
                 'default': ENVIRONMENT_TEST,
                 'caption': N_(u'Environnement'),
@@ -487,6 +498,12 @@ class Payment(PaymentCommon):
                 'LANGUAGE': language,
                 'CURRENCY': self.currency,
         }
+        if self.normal_return_url:
+            params['ACCEPTURL'] = self.normal_return_url
+            params['BACKURL'] = self.normal_return_url
+            params['CANCELURL'] = self.normal_return_url
+            params['DECLINEURL'] = self.normal_return_url
+            params['EXCEPTIONURL'] = self.normal_return_url
         if name:
             params['CN'] = name
         if email:

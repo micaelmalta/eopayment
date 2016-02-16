@@ -45,8 +45,7 @@ class Payment(object):
                    'siret': '00000000000001-01', \
                }
            >>> p = Payment(kind=SPPLUS, options=spplus_options)
-           >>> transaction_id, kind, data = p.request('10.00', email='bob@example.com', \
-                   next_url='https://my-site.com')
+           >>> transaction_id, kind, data = p.request('10.00', email='bob@example.com')
            >>> print (transaction_id, kind, data) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
            ('...', 1, 'https://www.spplus.net/paiement/init.do?...')
 
@@ -86,7 +85,6 @@ class Payment(object):
           Arguments:
           amount -- the amount of money to ask
           email -- the email of the customer (optional)
-          next_url -- the URL where the customer will be returned (optional),
           usually redundant with the hardwired settings in the bank
           configuration panel. At this url you must use the Payment.response
           method to analyze the bank returned values.

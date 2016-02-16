@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from decimal import Decimal
 import binascii
+from gettext import gettext as _
 import hmac
 import hashlib
 import urlparse
@@ -9,6 +10,7 @@ import string
 import datetime as dt
 import logging
 import re
+import warnings
 
 import Crypto.Cipher.DES
 from common import (PaymentCommon, URL, PaymentResponse, RECEIVED, ACCEPTED,
@@ -92,6 +94,17 @@ class Payment(PaymentCommon):
     description = {
             'caption': "SPPlus payment service of French bank Caisse d'epargne",
             'parameters': [
+                {
+                    'name': 'normal_return_url',
+                    'caption': _('Normal return URL'),
+                    'default': '',
+                    'required': True,
+                },
+                {
+                    'name': 'automatic_return_url',
+                    'caption': _('Automatic return URL'),
+                    'required': False,
+                },
                 {   'name': 'cle',
                     'caption': 'Secret key, a 40 digits hexadecimal number',
                     'regexp': re.compile('^ *((?:[a-fA-F0-9] *){40}) *$')
@@ -125,8 +138,7 @@ class Payment(PaymentCommon):
     def request(self, amount, name=None, address=None, email=None, phone=None,
             orderid=None, info1=None, info2=None, info3=None, next_url=None,
             logger=LOGGER, **kwargs):
-        logger.debug('requesting spplus payment with montant %s email=%s and \
-next_url=%s' % (amount, email, next_url))
+        logger.debug('requesting spplus payment with montant %s email=%s' % (amount, email))
         reference = self.transaction_id(20, ALPHANUM, 'spplus', self.siret)
         validite = dt.date.today()+dt.timedelta(days=1)
         validite = validite.strftime('%d/%m/%Y')
@@ -142,12 +154,17 @@ next_url=%s' % (amount, email, next_url))
                 'moyen': self.moyen }
         if email:
             fields['email'] = email
-        if next_url:
-            if (not next_url.startswith('http://') \
-                    and not next_url.startswith('https://')) \
-                       or '?' in next_url:
-                   raise ValueError('next_url must be an absolute URL without parameters')
-            fields['urlretour'] = next_url
+        normal_return_url = self.normal_return_url
+        if next_url and not normal_return_url:
+            warnings.warn("passing next_url to request() is deprecated, "
+                          "set normal_return_url in options", DeprecationWarning)
+            normal_return_url = next_url
+        if normal_return_url:
+            if (not normal_return_url.startswith('http://') \
+                    and not normal_return_url.startswith('https://')) \
+                       or '?' in normal_return_url:
+                   raise ValueError('normal_return_url must be an absolute URL without parameters')
+            fields['urlretour'] = normal_return_url
         logger.debug('sending fields %s' % fields)
         query = urllib.urlencode(fields)
         url = '%s?%s&hmac=%s' % (SERVICE_URL, query, sign_url_paiement(self.cle,

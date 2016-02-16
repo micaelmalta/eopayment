@@ -1,6 +1,7 @@
 import urllib
 import string
 import logging
+import warnings
 
 try:
     from cgi import parse_qs
@@ -27,24 +28,31 @@ class Payment(PaymentCommon):
        You must pass the following keys inside the options dictionnary:
         - dummy_service_url, the URL of the dummy payment service, it defaults
           to the one operated by Entr'ouvert.
-        - direct_notification_url: where to POST to notify the service of a
+        - automatic_return_url: where to POST to notify the service of a
           payment
         - origin: a human string to display to the user about the origin of
           the request.
         - siret: an identifier for the eCommerce site, fake.
-        - next_url: the return URL for the user (can be overriden on a per
-          request basis).
+        - normal_return_url: the return URL for the user (can be overriden on a
+          per request basis).
     '''
     description = {
             'caption': 'Dummy payment backend',
             'parameters': [
+                {
+                    'name': 'normal_return_url',
+                    'caption': _('Normal return URL'),
+                    'default': '',
+                    'required': True,
+                },
+                {
+                    'name': 'automatic_return_url',
+                    'caption': _('Automatic return URL'),
+                    'required': False,
+                },
                 {   'name': 'dummy_service_url',
                     'caption': 'URL of the dummy payment service',
                     'default': SERVICE_URL,
-                    'type': str,
-                },
-                {   'name': 'direct_notification_url',
-                    'caption': 'direct notification url',
                     'type': str,
                 },
                 {   'name': 'origin',
@@ -57,16 +65,22 @@ class Payment(PaymentCommon):
                     'caption': 'dummy siret parameter',
                     'type': str,
                 },
-                {   'name': 'next_url',
-                    'caption': 'Return URL for the user',
-                    'type': str,
-                },
                 {   'name': 'consider_all_response_signed',
                     'caption': 'All response will be considered as signed '
                          '(to test payment locally for example, as you '
                          'cannot received the signed callback)',
                     'type': bool,
                     'default': False,
+                },
+                {   'name': 'direct_notification_url',
+                    'caption': 'direct notification url (replaced by automatic_return_url)',
+                    'type': str,
+                    'deprecated': True,
+                },
+                {   'name': 'next_url (replaced by normal_return_url)',
+                    'caption': 'Return URL for the user',
+                    'type': str,
+                    'deprecated': True,
                 },
             ],
     }
@@ -77,15 +91,23 @@ class Payment(PaymentCommon):
                 ' next_url %s info1 %s info2 %s info3 %s kwargs: %s',
                 __name__, amount, name, address, email, phone, info1, info2, info3, next_url, kwargs)
         transaction_id = self.transaction_id(30, ALPHANUM, 'dummy', self.siret)
-        if self.next_url:
-            next_url = self.next_url
+        normal_return_url = self.normal_return_url
+        if next_url and not normal_return_url:
+            warnings.warn("passing next_url to request() is deprecated, "
+                          "set normal_return_url in options", DeprecationWarning)
+            normal_return_url = next_url
+        automatic_return_url = self.automatic_return_url
+        if self.direct_notification_url and not automatic_return_url:
+            warnings.warn("direct_notification_url option is deprecated, "
+                          "use automatic_return_url", DeprecationWarning)
+            automatic_return_url = self.direct_notification_url
         query = {
                 'transaction_id': transaction_id,
                 'siret': self.siret,
                 'amount': amount,
                 'email': email,
-                'return_url': next_url or '',
-                'direct_notification_url': self.direct_notification_url,
+                'return_url': normal_return_url or '',
+                'direct_notification_url': automatic_return_url or '',
                 'origin': self.origin
         }
         query.update(dict(name=name, address=address, email=email, phone=phone,

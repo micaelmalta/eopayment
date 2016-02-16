@@ -5,6 +5,7 @@ from decimal import Decimal
 import uuid
 import hashlib
 from gettext import gettext as _
+import warnings
 
 from common import PaymentCommon, FORM, Form, PaymentResponse, PAID, ERROR, CANCELED
 
@@ -92,7 +93,7 @@ class Payment(PaymentCommon):
             {
                 'name': 'normal_return_url',
                 'caption': _('Normal return URL'),
-                'default': 'http://www.example.com/',
+                'default': '',
                 'required': True,
             },
             {
@@ -129,6 +130,8 @@ class Payment(PaymentCommon):
         data['merchantId'] = self.merchand_id
         data['keyVersion'] = self.key_version
         data['normalReturnUrl'] = self.normal_return_url
+        if self.automatic_return_url:
+            date['automaticReturnUrl'] = self.automatic_return_url
         data['currencyCode'] = self.currency_code
         return data
 
@@ -144,7 +147,12 @@ class Payment(PaymentCommon):
         data['amount'] = unicode(int(Decimal(amount) * 100))
         if email:
             data['billingContact.email'] = email
-        if next_url:
+        normal_return_url = self.normal_return_url
+        if next_url and not normal_return_url:
+            warnings.warn("passing next_url to request() is deprecated, "
+                          "set normal_return_url in options", DeprecationWarning)
+            normal_return_url = next_url
+        if normal_return_url:
             data['normalReturnUrl'] = next_url
         form = Form(
             url=self.get_url(),

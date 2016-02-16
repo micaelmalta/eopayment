@@ -5,6 +5,7 @@ import hashlib
 import logging
 import string
 import urlparse
+import warnings
 from gettext import gettext as _
 
 from common import PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form
@@ -214,6 +215,17 @@ class Payment(PaymentCommon):
     description = {
         'caption': 'SystemPay, système de paiment du groupe BPCE',
         'parameters': [
+            {
+                'name': 'normal_return_url',
+                'caption': _('Normal return URL'),
+                'default': '',
+                'required': True,
+            },
+            {
+                'name': 'automatic_return_url',
+                'caption': _('Automatic return URL (ignored, must be set in Payzen/SystemPay backoffice)'),
+                'required': False,
+            },
             {'name': 'service_url',
                 'default': service_url,
                 'caption': _(u'URL du service de paiment'),
@@ -266,8 +278,13 @@ class Payment(PaymentCommon):
         kwargs.update(add_vads({'amount': unicode(amount)}))
         if amount < 0:
             raise ValueError('amount must be an integer >= 0')
+        normal_return_url = self.normal_return_url
         if next_url:
-            kwargs[VADS_URL_RETURN] = unicode(next_url)
+            warnings.warn("passing next_url to request() is deprecated, "
+                          "set normal_return_url in options", DeprecationWarning)
+            normal_return_url = next_url
+        if normal_return_url:
+            kwargs[VADS_URL_RETURN] = unicode(normal_return_url)
         if name is not None:
             kwargs['vads_cust_name'] = unicode(name)
         if address is not None:

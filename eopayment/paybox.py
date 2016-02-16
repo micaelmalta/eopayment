@@ -14,6 +14,7 @@ import urllib
 import base64
 from gettext import gettext as _
 import string
+import warnings
 
 from common import (PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form,
         ORDERID_TRANSACTION_SEPARATOR)
@@ -127,8 +128,8 @@ class Payment(PaymentCommon):
     '''Paybox backend for eopayment.
 
        If you want to handle Instant Payment Notification, you must pass
-       a callback parameter to the request() method specifying the URL of
-       the callback endpoint.
+       provide a automatic_return_url option specifying the URL of the
+       callback endpoint.
 
        Email is mandatory to emit payment requests with paybox.
 
@@ -143,6 +144,17 @@ class Payment(PaymentCommon):
     description = {
         'caption': _('Paybox'),
         'parameters': [
+            {
+                'name': 'normal_return_url',
+                'caption': _('Normal return URL'),
+                'default': '',
+                'required': False,
+            },
+            {
+                'name': 'automatic_return_url',
+                'caption': _('Automatic return URL'),
+                'required': False,
+            },
             {
                 'name': 'platform',
                 'caption': _('Plateforme cible'),
@@ -189,6 +201,7 @@ class Payment(PaymentCommon):
             {
                 'name': 'callback',
                 'caption': _('Callback URL'),
+                'deprecated': True,
             },
         ]
     }
@@ -212,8 +225,18 @@ class Payment(PaymentCommon):
         d['PBX_HASH'] = 'SHA512'
         d['PBX_TIME'] = kwargs.get('time') or (unicode(datetime.datetime.utcnow().isoformat('T')).split('.')[0]+'+00:00')
         d['PBX_ARCHIVAGE'] = transaction_id
-        if self.callback:
-            d['PBX_REPONDRE_A'] = unicode(self.callback)
+        if self.normal_return_url:
+            d['PBX_EFFECTUE'] = self.normal_return_url
+            d['PBX_REFUSE'] = self.normal_return_url
+            d['PBX_ANNULE'] = self.normal_return_url
+            d['PBX_ATTENTE'] = self.normal_return_url
+        automatic_return_url = self.automatic_return_url
+        if not automatic_return_url and self.callback:
+            warnings.warn("callback option is deprecated, "
+                          "use automatic_return_url", DeprecationWarning)
+            automatic_return_url = self.callback
+        if automatic_return_url:
+            d['PBX_REPONDRE_A'] = unicode(automatic_return_url)
         d = d.items()
         d = sign(d, self.shared_secret.decode('hex'))
         url = URLS[self.platform]

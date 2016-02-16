@@ -7,6 +7,7 @@ import logging
 import os
 import os.path
 import uuid
+import warnings
 
 from common import PaymentCommon, HTML, PaymentResponse
 from cb import CB_RESPONSE_CODES
@@ -143,8 +144,13 @@ class Payment(PaymentCommon):
         params['amount'] = str(int(Decimal(amount) * 100))
         if email:
             params['customer_email'] = email
-        if next_url:
-            params['normal_return_url'] = next_url
+        normal_return_url = self.normal_return_url
+        if next_url and not normal_return_url:
+            warnings.warn("passing next_url to request() is deprecated, "
+                          "set normal_return_url in options", DeprecationWarning)
+            normal_return_url = next_url
+        if normal_return_url:
+            params['normal_return_url'] = normal_return_url
         code, error, form = self.execute('request', params)
         if int(code) == 0:
             return params[ORDER_ID], HTML, form
