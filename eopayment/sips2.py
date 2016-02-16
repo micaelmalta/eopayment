@@ -153,7 +153,7 @@ class Payment(PaymentCommon):
                           "set normal_return_url in options", DeprecationWarning)
             normal_return_url = next_url
         if normal_return_url:
-            data['normalReturnUrl'] = next_url
+            data['normalReturnUrl'] = normal_return_url
         form = Form(
             url=self.get_url(),
             method='POST',
