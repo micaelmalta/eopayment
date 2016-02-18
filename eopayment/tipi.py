@@ -54,11 +54,6 @@ class Payment(PaymentCommon):
             ],
     }
 
-    def __init__(self, options, logger=LOGGER):
-        self.service_url = options.pop('service_url', TIPI_URL)
-        self.numcli = options.pop('numcli', '')
-        self.logger = logger
-
     def request(self, amount, next_url=None, exer=None, orderid=None,
             refdet=None, objet=None, email=None, saisie=None, **kwargs):
         try:

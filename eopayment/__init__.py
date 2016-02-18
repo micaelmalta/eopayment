@@ -75,9 +75,9 @@ class Payment(object):
 
     '''
 
-    def __init__(self, kind, options):
+    def __init__(self, kind, options, logger=None):
         self.kind = kind
-        self.backend = get_backend(kind)(options)
+        self.backend = get_backend(kind)(options, logger=logger)
 
     def request(self, amount, **kwargs):
         '''Request a payment to the payment backend.

@@ -112,9 +112,6 @@ class Payment(PaymentCommon):
         ],
     }
 
-    def __init__(self, options, logger=None):
-        super(Payment, self).__init__(options)
-
     def encode_data(self, data):
         return u'|'.join(u'%s=%s' % (unicode(key), unicode(value))
                          for key, value in data.iteritems())

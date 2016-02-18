@@ -83,8 +83,8 @@ class PaymentCommon(object):
     PATH = '/tmp'
     BANK_ID = '__bank_id'
 
-    def __init__(self, options):
-        self.logger = logging.getLogger(self.__class__.__module__)
+    def __init__(self, options, logger=None):
+        self.logger = logger or logging.getLogger(self.__class__.__module__)
         self.logger.debug('initializing with options %s', options)
         for value in self.description['parameters']:
             key = value['name']

@@ -102,10 +102,10 @@ class Payment(PaymentCommon):
             ],
     }
 
-    def __init__(self, options, logger=LOGGER):
+    def __init__(self, options, logger=None):
+        super(Payment, self).__init__(options, logger=logger)
         self.options = options
         self.binpath = self.options.pop(BINPATH)
-        self.logger = logger
         self.logger.debug('initializing sips payment class with %s' % options)
 
     def execute(self, executable, params):

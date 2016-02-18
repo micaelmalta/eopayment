@@ -256,12 +256,9 @@ class Payment(PaymentCommon):
         description['parameters'].append(x)
 
     def __init__(self, options, logger=None):
-        self.service_url = options.pop('service_url', self.service_url)
-        self.secret_test = options.pop('secret_test')
-        self.secret_production = options.pop('secret_production', None)
+        super(Payment, self).__init__(options, logger=logger)
         options = add_vads(options)
         self.options = options
-        self.logger = logger or logging.getLogger(__name__)
 
     def request(self, amount, name=None, address=None, email=None, phone=None,
                 orderid=None, info1=None, info2=None, info3=None,
