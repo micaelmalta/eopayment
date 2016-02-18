@@ -9,4 +9,7 @@ class Payment(systempayv2.Payment):
 
     description = deepcopy(systempayv2.Payment.description)
     description['caption'] = 'PayZen'
-    description['parameters'][0]['name'] = service_url
+    for param in description['parameters']:
+        if param['name'] == 'service_url':
+            param['default'] = service_url
+            break
