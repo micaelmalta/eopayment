@@ -1,5 +1,5 @@
-Python module to interface with French's bank online credit card processing
-services.
+Interface with French's bank online credit card processing services
+===================================================================
 
 Services supported are:
 - ATOS/SIPS used by:
@@ -40,6 +40,11 @@ order id field, so they can be matched in backoffice.
 
 Changelog
 =========
+
+1.5
+---
+- uniformize constructors
+- fix service_url in the payzen backend
 
 1.4
 ---
