@@ -3,6 +3,7 @@ import urllib
 
 import eopayment
 import eopayment.ogone as ogone
+from eopayment import ResponseError
 
 PSPID = '2352566'
 
@@ -52,3 +53,10 @@ class OgoneTests(TestCase):
                 'payid': '32100123', 'status': 9, 'ncerror': 0}
         response = ogone_backend.response(urllib.urlencode(data))
         self.assertEqual(response.order_id, order_id)
+
+    def test_bad_response(self):
+        ogone_backend = eopayment.Payment('ogone', BACKEND_PARAMS)
+        order_id = 'myorder'
+        data = {'payid': '32100123', 'status': 9, 'ncerror': 0}
+        with self.assertRaises(ResponseError):
+            response = ogone_backend.response(urllib.urlencode(data))

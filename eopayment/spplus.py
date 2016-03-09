@@ -14,7 +14,7 @@ import warnings
 
 import Crypto.Cipher.DES
 from common import (PaymentCommon, URL, PaymentResponse, RECEIVED, ACCEPTED,
-        PAID, ERROR)
+        PAID, ERROR, ResponseError)
 
 def N_(message): return message
 
@@ -176,6 +176,8 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, logger=LOGGER, **kwargs):
         form = urlparse.parse_qs(query_string)
+        if not set(form) >= set([REFERENCE, ETAT, REFSFP]):
+            raise ResponseError()
         for key, value in form.iteritems():
             form[key] = value[0]
         logger.debug('received query_string %s' % query_string)

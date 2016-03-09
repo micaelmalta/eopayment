@@ -8,7 +8,8 @@ import urlparse
 import warnings
 from gettext import gettext as _
 
-from common import PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form
+from common import (PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form,
+                    ResponseError)
 from cb import CB_RESPONSE_CODES
 
 __all__ = ['Payment']
@@ -338,6 +339,8 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, **kwargs):
         fields = urlparse.parse_qs(query_string, True)
+        if not set(fields) >= set([SIGNATURE, VADS_CTX_MODE, VADS_AUTH_RESULT]):
+            raise ResponseError()
         for key, value in fields.iteritems():
             fields[key] = value[0]
         copy = fields.copy()

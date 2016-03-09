@@ -9,7 +9,7 @@ import os.path
 import uuid
 import warnings
 
-from common import PaymentCommon, HTML, PaymentResponse
+from common import PaymentCommon, HTML, PaymentResponse, ResponseError
 from cb import CB_RESPONSE_CODES
 
 '''
@@ -159,6 +159,8 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, **kwargs):
         form = urlparse.parse_qs(query_string)
+        if not DATA in form:
+            raise ResponseError()
         params = {'message': form[DATA][0]}
         result = self.execute('response', params)
         d = dict(zip(RESPONSE_PARAMS, result))

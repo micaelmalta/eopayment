@@ -5,7 +5,8 @@ import urlparse
 from decimal import Decimal, ROUND_HALF_UP
 
 from common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
-        ERROR, Form, DENIED, ACCEPTED, ORDERID_TRANSACTION_SEPARATOR)
+        ERROR, Form, DENIED, ACCEPTED, ORDERID_TRANSACTION_SEPARATOR,
+        ResponseError)
 def N_(message): return message
 
 ENVIRONMENT_TEST = 'TEST'
@@ -528,6 +529,8 @@ class Payment(PaymentCommon):
     def response(self, query_string, **kwargs):
         params = urlparse.parse_qs(query_string, True)
         params = dict((key.upper(), params[key][0]) for key in params)
+        if not set(params) >= set(['ORDERID', 'PAYID', 'STATUS', 'NCERROR']):
+            raise ResponseError()
         reference = params['ORDERID']
         transaction_id = params['PAYID']
         status = params['STATUS']

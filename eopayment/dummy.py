@@ -10,7 +10,7 @@ try:
 except ImportError:
     from urlparse import parse_qs
 
-from common import PaymentCommon, URL, PaymentResponse, PAID, ERROR
+from common import PaymentCommon, URL, PaymentResponse, PAID, ERROR, ResponseError
 
 __all__ = [ 'Payment' ]
 
@@ -122,6 +122,8 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, logger=LOGGER, **kwargs):
         form = parse_qs(query_string)
+        if not 'transaction_id' in form:
+            raise ResponseError()
         transaction_id = form.get('transaction_id',[''])[0]
         form[self.BANK_ID] = transaction_id
 

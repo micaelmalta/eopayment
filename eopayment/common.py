@@ -27,6 +27,10 @@ ERROR = 99
 ORDERID_TRANSACTION_SEPARATOR = '!'
 
 
+class ResponseError(Exception):
+    pass
+
+
 class PaymentResponse(object):
     '''Holds a generic view on the result of payment transaction response.
 

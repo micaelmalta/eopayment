@@ -17,7 +17,7 @@ import string
 import warnings
 
 from common import (PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form,
-        ORDERID_TRANSACTION_SEPARATOR)
+        ORDERID_TRANSACTION_SEPARATOR, ResponseError)
 
 __all__ = ['sign', 'Payment']
 
@@ -253,6 +253,8 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, callback=False, **kwargs):
         d = urlparse.parse_qs(query_string, True, False)
+        if not set(d) >= set(['erreur', 'reference']):
+            raise ResponseError()
         signed = False
         if 'signature' in d:
             sig = d['signature'][0]

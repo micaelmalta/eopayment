@@ -8,7 +8,8 @@ import hashlib
 from gettext import gettext as _
 import warnings
 
-from common import PaymentCommon, FORM, Form, PaymentResponse, PAID, ERROR, CANCELED
+from common import (PaymentCommon, FORM, Form, PaymentResponse, PAID, ERROR,
+        CANCELED, ResponseError)
 
 __all__ = ['Payment']
 
@@ -190,10 +191,9 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, **kwargs):
         form = urlparse.parse_qs(query_string)
+        if not set(form) >= set(['Data', 'Seal', 'InterfaceVersion']):
+            raise ResponseError()
         self.logger.debug('received query string %r', form)
-        assert 'Data' in form
-        assert 'Seal' in form
-        assert 'InterfaceVersion' in form
         data = self.decode_data(form['Data'][0])
         seal = form['Seal'][0]
         self.logger.debug('parsed response %r seal %r', data, seal)

@@ -2,7 +2,7 @@
 
 from decimal import Decimal, ROUND_DOWN
 from common import (PaymentCommon, PaymentResponse, URL, PAID, DENIED,
-        CANCELLED, ERROR)
+        CANCELLED, ERROR, ResponseError)
 from urllib import urlencode
 from urlparse import parse_qs
 from gettext import gettext as _
@@ -136,6 +136,8 @@ class Payment(PaymentCommon):
 
     def response(self, query_string, **kwargs):
         fields = parse_qs(query_string, True)
+        if not set(fields) >= set(['refdet', 'resultrans']):
+            raise ResponseError()
         for key, value in fields.iteritems():
             fields[key] = value[0]
         refdet = fields.get('refdet')
