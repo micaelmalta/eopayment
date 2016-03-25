@@ -41,6 +41,15 @@ order id field, so they can be matched in backoffice.
 Changelog
 =========
 
+1.7
+---
+- check responses and raise ResponseError when theyr are malformed
+
+1.6
+---
+- fix payzen service_url
+- rationalize Payment object constructors
+
 1.5
 ---
 - uniformize constructors
