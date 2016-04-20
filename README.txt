@@ -41,6 +41,10 @@ order id field, so they can be matched in backoffice.
 Changelog
 =========
 
+1.8
+---
+- fix UTF-8 character in non unicode log message
+
 1.7
 ---
 - check responses and raise ResponseError when theyr are malformed
