@@ -409,5 +409,5 @@ class Payment(PaymentCommon):
         signed_data = '%s+%s' % (signed_data, secret)
         self.logger.debug(u'generating signature on «%s»' % signed_data)
         sign = hashlib.sha1(signed_data).hexdigest()
-        self.logger.debug('signature «%s»' % sign)
+        self.logger.debug(u'signature «%s»' % sign)
         return sign
