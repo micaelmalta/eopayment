@@ -75,7 +75,7 @@ class Payment(PaymentCommon):
                 'required': True,
             },
             {
-                'name': 'merchand_id',
+                'name': 'merchant_id',
                 'caption': _('Merchant ID'),
                 'default': TEST_MERCHANT_ID,
                 'required': True,
@@ -126,7 +126,7 @@ class Payment(PaymentCommon):
 
     def get_data(self):
         data = collections.OrderedDict()
-        data['merchantId'] = self.merchand_id
+        data['merchantId'] = self.merchant_id
         data['keyVersion'] = self.key_version
         data['normalReturnUrl'] = self.normal_return_url
         if self.automatic_return_url:
