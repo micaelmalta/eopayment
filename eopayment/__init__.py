@@ -23,7 +23,7 @@ def get_backend(kind):
     module = __import__(kind, globals(), locals(), [])
     return module.Payment
 
-__BACKENDS = [ DUMMY, SIPS, SIPS2, SYSTEMPAY, SPPLUS, OGONE, PAYBOX, PAYZEN ]
+__BACKENDS = [ DUMMY, SIPS, SIPS2, SYSTEMPAY, SPPLUS, OGONE, PAYBOX, PAYZEN, TIPI ]
 
 def get_backends():
     '''Return a dictionnary mapping existing eopayment backends name to their
