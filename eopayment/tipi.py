@@ -51,6 +51,12 @@ class Payment(PaymentCommon):
                     'caption': _('Automatic return URL'),
                     'required': True,
                 },
+                {
+                    'name': 'saisie',
+                    'caption': _('Payment type'),
+                    'required': True,
+                    'default': 'T',
+                },
             ],
     }
 
@@ -109,6 +115,8 @@ class Payment(PaymentCommon):
                 raise ValueError('len(MEL) is invalid, must be between 6 and 80')
         except Exception, e:
             raise ValueError('MEL is not a valid email, %r' % mel, e)
+
+        saisie = saisie or self.saisie
 
         if saisie not in ('M', 'T', 'X', 'A'):
             raise ValueError('SAISIE invalid format, %r, must be M, T, X or A' % saisie)
