@@ -178,7 +178,7 @@ class Payment(PaymentCommon):
 
     def decode_data(self, data):
         data = data.split('|')
-        data = [map(unicode, p.split('=')) for p in data]
+        data = [map(unicode, p.split('=', 1)) for p in data]
         return collections.OrderedDict(data)
 
     def check_seal(self, data, seal):
