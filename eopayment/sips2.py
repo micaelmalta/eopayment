@@ -109,7 +109,14 @@ class Payment(PaymentCommon):
                 'default': '978',
                 'choices': ['978'],
                 'required': True,
-            }
+            },
+            {
+                'name': 'capture_mode',
+                'caption': _('Capture Mode'),
+                'default': 'AUTHOR_CAPTURE',
+                'choices': ['AUTHOR_CAPTURE', 'IMMEDIATE', 'VALIDATION'],
+                'required': True,
+            },
         ],
     }
 
@@ -132,6 +139,7 @@ class Payment(PaymentCommon):
         if self.automatic_return_url:
             data['automaticResponseUrl'] = self.automatic_return_url
         data['currencyCode'] = self.currency_code
+        data['captureMode'] = self.capture_mode
         return data
 
     def get_url(self):
