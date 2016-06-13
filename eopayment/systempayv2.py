@@ -30,7 +30,6 @@ VADS_AMOUNT = 'vads_amount'
 VADS_SITE_ID = 'vads_site_id'
 VADS_TRANS_ID = 'vads_trans_id'
 SIGNATURE = 'signature'
-VADS_TRANS_ID = 'vads_trans_id'
 VADS_CTX_MODE = 'vads_ctx_mode'
 
 
