@@ -124,6 +124,15 @@ class Form(object):
         self.submit_value = submit_value
 
     def __repr__(self):
+        s = '%s(' % self.__class__.__name__
+        kwargs = []
+        for k in ('url', 'method', 'fields', 'encoding', 'submit_name', 'submit_value'):
+            kwargs.append('%s=%r' % (k, getattr(self, k)))
+        s += ', '.join(kwargs)
+        s += ')'
+        return s
+
+    def __str__(self):
         s = '<form method="%s" action="%s">' % (self.method, self.url)
         for field in self.fields:
             s += '\n  <input type="%s" name="%s" value="%s"/>' % (
