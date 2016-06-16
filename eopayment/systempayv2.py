@@ -82,7 +82,7 @@ PARAMETERS = [
     Parameter('vads_capture_delay', 'n', 6, max_length=3, default=''),
     Parameter('vads_contrib', 'ans', 31, max_length=255, default='eopayment'),
     # defaut currency = EURO, norme ISO4217
-    Parameter('vads_currency', 'n', 10, length=3, default=978, needed=True),
+    Parameter('vads_currency', 'n', 10, length=3, default='978', needed=True),
     Parameter('vads_cust_address', 'an', 19, max_length=255),
     # code ISO 3166
     Parameter('vads_cust_country', 'a', 22, length=2, default='FR'),
@@ -206,7 +206,7 @@ class Payment(PaymentCommon):
             'vads_ctx_mode': 'TEST', 'vads_validation_mode': '',
             'vads_version': 'V2', 'vads_payment_cards': '', 'signature':
             '5d412498ab523627ec5730a09118f75afa602af5', 'vads_language': 'fr',
-            'vads_capture_delay': '', 'vads_currency': 978, 'vads_amount': 100,
+            'vads_capture_delay': '', 'vads_currency': '978', 'vads_amount': 100,
             'vads_return_mode': 'NONE'})
 
     '''
