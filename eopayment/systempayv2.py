@@ -9,7 +9,7 @@ import warnings
 from gettext import gettext as _
 
 from common import (PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form,
-                    ResponseError)
+                    ResponseError, force_text)
 from cb import CB_RESPONSE_CODES
 
 __all__ = ['Payment']
@@ -329,11 +329,15 @@ class Payment(PaymentCommon):
         transaction_id = '%s_%s' % (fields[VADS_TRANS_DATE], transaction_id)
         self.logger.debug('%s transaction id: %s', __name__, transaction_id)
         form = Form(
-                url=self.service_url,
-                method='POST',
-                fields=[{'type': 'hidden',
-                        'name': name,
-                        'value': value} for name, value in fields.iteritems()])
+            url=self.service_url,
+            method='POST',
+            fields=[
+                {
+                    'type': u'hidden',
+                    'name': force_text(field_name),
+                    'value': force_text(field_value),
+                }
+                for field_name, field_value in fields.iteritems()])
         return transaction_id, FORM, form
 
     def response(self, query_string, **kwargs):
