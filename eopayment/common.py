@@ -27,6 +27,15 @@ ERROR = 99
 ORDERID_TRANSACTION_SEPARATOR = '!'
 
 
+def force_text(s, encoding='utf-8'):
+    if isinstance(s, unicode):
+        return s
+    try:
+        return unicode(s, encoding)
+    except UnicodeDecodeError:
+        return unicode(s)
+
+
 class ResponseError(Exception):
     pass
 
@@ -129,20 +138,20 @@ class Form(object):
         s += ')'
         return s
 
+    def escape(self, s):
+        return cgi.escape(force_text(s, self.encoding).encode(self.encoding))
+
     def __str__(self):
         s = '<form method="%s" action="%s">' % (self.method, self.url)
         for field in self.fields:
-            s += '\n  <input type="%s" name="%s" value="%s"/>' % (
-                cgi.escape(field['type'].encode(self.encoding)),
-                cgi.escape(field['name'].encode(self.encoding)),
-                cgi.escape(field['value'].encode(self.encoding)))
+            s += '\n  <input type="%s" name="%s" value="%s"/>' % (self.escape(field['type']),
+                                                                  self.escape(field['name']),
+                                                                  self.escape(field['value']))
         s += '\n  <input type="submit"'
         if self.submit_name:
-            s += ' name="%s"' % cgi.escape(
-                self.submit_name.encode(self.encoding))
+            s += ' name="%s"' % self.escape(self.submit_name)
         if self.submit_value:
-            s += ' value="%s"' % cgi.escape(
-                self.submit_value.encode(self.encoding))
+            s += ' value="%s"' % self.escape(self.submit_value)
         s += ' />'
         s += '\n</form>'
         return s
