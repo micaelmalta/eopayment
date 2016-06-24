@@ -117,6 +117,11 @@ class Payment(PaymentCommon):
                 'choices': ['AUTHOR_CAPTURE', 'IMMEDIATE', 'VALIDATION'],
                 'required': True,
             },
+            {
+                'name': 'capture_day',
+                'caption': _('Capture Day'),
+                'required': False,
+            },
         ],
     }
 
@@ -140,6 +145,8 @@ class Payment(PaymentCommon):
             data['automaticResponseUrl'] = self.automatic_return_url
         data['currencyCode'] = self.currency_code
         data['captureMode'] = self.capture_mode
+        if self.capture_day:
+            data['captureDay'] = self.capture_day
         return data
 
     def get_url(self):
@@ -154,6 +161,8 @@ class Payment(PaymentCommon):
         data['amount'] = unicode(int(Decimal(amount) * 100))
         if email:
             data['billingContact.email'] = email
+        if 'captureDay' in kwargs:
+            data['captureDay'] == kwargs.get('captureDay')
         normal_return_url = self.normal_return_url
         if next_url and not normal_return_url:
             warnings.warn("passing next_url to request() is deprecated, "
