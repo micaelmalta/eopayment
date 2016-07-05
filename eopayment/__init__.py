@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from common import (URL, HTML, FORM, RECEIVED, ACCEPTED, PAID, DENIED,
                     CANCELED, CANCELLED, ERROR, ResponseError)
 
@@ -17,6 +19,7 @@ OGONE = 'ogone'
 PAYBOX = 'paybox'
 PAYZEN = 'payzen'
 
+logger = logging.getLogger(__name__)
 
 def get_backend(kind):
     '''Resolve a backend name into a module object'''
@@ -98,6 +101,7 @@ class Payment(object):
             - the third is the URL or the HTML form to contact the payment
               server, which must be sent to the customer browser.
         '''
+        logger.debug(u'%r' %  kwargs)
         return self.backend.request(amount, **kwargs)
 
     def response(self, query_string, **kwargs):

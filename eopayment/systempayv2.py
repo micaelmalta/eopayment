@@ -25,6 +25,8 @@ VADS_CUST_PHONE = 'vads_cust_phone'
 VADS_CUST_INFO1 = 'vads_order_info'
 VADS_CUST_INFO2 = 'vads_order_info2'
 VADS_CUST_INFO3 = 'vads_order_info3'
+VADS_CUST_FIRST_NAME = 'vads_cust_first_name'
+VADS_CUST_LAST_NAME = 'vads_cust_last_name'
 VADS_URL_RETURN = 'vads_url_return'
 VADS_AMOUNT = 'vads_amount'
 VADS_SITE_ID = 'vads_site_id'
@@ -138,6 +140,8 @@ PARAMETERS = [
     Parameter('vads_url_return', 'ans', 28, max_length=127),
     Parameter('vads_user_info', 'ans', 61, max_length=255),
     Parameter('vads_contracts', 'ans', 62, max_length=255),
+    Parameter(VADS_CUST_FIRST_NAME, 'an', 104, max_length=63),
+    Parameter(VADS_CUST_LAST_NAME, 'an', 104, max_length=63),
 ]
 PARAMETER_MAP = dict(((parameter.name,
                        parameter) for parameter in PARAMETERS))
@@ -260,9 +264,9 @@ class Payment(PaymentCommon):
         options = add_vads(options)
         self.options = options
 
-    def request(self, amount, name=None, address=None, email=None, phone=None,
-                orderid=None, info1=None, info2=None, info3=None,
-                next_url=None, **kwargs):
+    def request(self, amount, name=None, first_name=None, last_name=None,
+                address=None, email=None, phone=None, orderid=None, info1=None,
+                info2=None, info3=None, next_url=None, **kwargs):
         '''
            Create the URL string to send a request to SystemPay
         '''
@@ -284,6 +288,11 @@ class Payment(PaymentCommon):
             kwargs[VADS_URL_RETURN] = unicode(normal_return_url)
         if name is not None:
             kwargs['vads_cust_name'] = unicode(name)
+        if first_name is not None:
+            kwargs[VADS_CUST_FIRST_NAME] = unicode(first_name)
+        if last_name is not None:
+            kwargs[VADS_CUST_LAST_NAME] = unicode(last_name)
+
         if address is not None:
             kwargs['vads_cust_address'] = unicode(address)
         if email is not None:

@@ -160,8 +160,9 @@ class Payment(PaymentCommon):
     def get_url(self):
         return self.URL[self.platform]
 
-    def request(self, amount, name=None, address=None, email=None, phone=None,
-                orderid=None, info1=None, info2=None, info3=None, next_url=None, **kwargs):
+    def request(self, amount, name=None, first_name=None, last_name=None,
+                address=None, email=None, phone=None, orderid=None,
+                info1=None, info2=None, info3=None, next_url=None, **kwargs):
         data = self.get_data()
         transaction_id = self.transaction_id(6, string.digits, 'sips2', data['merchantId'])
         data['transactionReference'] = unicode(transaction_id)
@@ -171,6 +172,7 @@ class Payment(PaymentCommon):
             data['billingContact.email'] = email
         if 'captureDay' in kwargs:
             data['captureDay'] == kwargs.get('captureDay')
+        data['customerId'] = unicode(name or ' '.join(filter(None, [first_name, last_name])))
         normal_return_url = self.normal_return_url
         if next_url and not normal_return_url:
             warnings.warn("passing next_url to request() is deprecated, "
