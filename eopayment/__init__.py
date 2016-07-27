@@ -134,3 +134,23 @@ class Payment(object):
 
         '''
         return self.backend.response(query_string, **kwargs)
+
+    def cancel(self, amount, bank_data, **kwargs):
+        '''
+           Cancel or edit the amount of a transaction sent to the bank.
+
+           Arguments:
+           - amount -- the amount of money to cancel
+           - bank_data -- the transaction dictionary received from the bank
+        '''
+        return self.backend.cancel(amount, bank_data, **kwargs)
+
+    def validate(self, amount, bank_data, **kwargs):
+        '''
+           Validate and trigger the transmission of a transaction to the bank.
+
+           Arguments:
+           - amount -- the amount of money
+           - bank_data -- the transaction dictionary received from the bank
+        '''
+        return self.backend.validate(amount, bank_data, **kwargs)

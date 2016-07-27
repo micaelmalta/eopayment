@@ -94,6 +94,7 @@ setuptools.setup(
     maintainer_email="bdauvergne@entrouvert.com",
     packages=['eopayment'],
     install_requires=[
-        'pycrypto >= 2.5'
+        'pycrypto >= 2.5',
+        'requests',
     ],
 )

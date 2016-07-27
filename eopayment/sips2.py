@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import collections
+import json
 import urlparse
 import string
 from decimal import Decimal
 import uuid
 import hashlib
+import hmac
 from gettext import gettext as _
+import requests
 import warnings
 
 from common import (PaymentCommon, FORM, Form, PaymentResponse, PAID, ERROR,
@@ -33,6 +36,11 @@ class Payment(PaymentCommon):
         'test': 'https://payment-webinit.simu.sips-atos.com/paymentInit',
         'prod': 'https://payment-webinit.sips-atos.com/paymentInit',
     }
+    WS_URL = {
+        'test': 'https://office-server.test.sips-atos.com',
+        'prod': 'https://office-server.sips-atos.com',
+    }
+
     INTERFACE_VERSION = 'HP_2.3'
     RESPONSE_CODES = {
         '00': 'Authorisation accepted',
@@ -228,3 +236,62 @@ class Payment(PaymentCommon):
             transaction_id=data.get('authorisationId'),
             bank_status=self.RESPONSE_CODES.get(response_code, u'unknown code - ' + response_code),
             test=test)
+
+    def get_seal_for_json_ws_data(self, data):
+        data_to_send = []
+        for key in sorted(data.keys()):
+            if key in ('keyVersion', 'sealAlgorithm', 'seal'):
+                continue
+            data_to_send.append(unicode(data[key]))
+        data_to_send_str = u''.join(data_to_send).encode('utf-8')
+        return hmac.new(unicode(self.secret_key).encode('utf-8'), data_to_send_str, hashlib.sha256).hexdigest()
+
+    def perform_cash_management_operation(self, endpoint, data):
+        data['merchantId'] = self.merchant_id
+        data['interfaceVersion'] = 'CR_WS_2.3'
+        data['keyVersion'] = self.key_version
+        data['currencyCode'] = self.currency_code
+        data['seal'] = self.get_seal_for_json_ws_data(data)
+        url = self.WS_URL.get(self.platform) + '/rs-services/v2/cashManagement/%s' % endpoint
+        self.logger.debug('posting %r to %s endpoint', data, endpoint)
+        response = requests.post(url, data=json.dumps(data),
+                headers={'content-type': 'application/json',
+                         'accept': 'application/json'})
+        self.logger.debug('received %r', response.content)
+        response.raise_for_status()
+        json_response = response.json()
+        if self.platform == 'prod':
+            # test environment doesn't set seal
+            if json_response.get('seal') != self.get_seal_for_json_ws_data(json_response):
+                raise ResponseError('wrong signature on response')
+        if json_response.get('responseCode') != '00':
+            raise ResponseError('non-zero response code (%s)' % json_response)
+        return json_response
+
+    def cancel(self, amount, bank_data, **kwargs):
+        data = {}
+        data['operationAmount'] = unicode(int(Decimal(amount) * 100))
+        data['transactionReference'] = bank_data.get('transactionReference')
+        return self.perform_cash_management_operation('cancel', data)
+
+    def validate(self, amount, bank_data, **kwargs):
+        data = {}
+        data['operationAmount'] = unicode(int(Decimal(amount) * 100))
+        data['transactionReference'] = bank_data.get('transactionReference')
+        return self.perform_cash_management_operation('validate', data)
+
+    def diagnostic(self, amount, bank_data, **kwargs):
+        data = {}
+        data['transactionReference'] = bank_data.get('transactionReference')
+        data['merchantId'] = self.merchant_id
+        data['interfaceVersion'] = 'DR_WS_2.9'
+        data['keyVersion'] = self.key_version
+        data['seal'] = self.get_seal_for_json_ws_data(data)
+        url = self.WS_URL.get(self.platform) + '/rs-services/v2/diagnostic/getTransactionData'
+        self.logger.debug('posting %r to %s endpoint', data, 'diagnostic')
+        response = requests.post(url, data=json.dumps(data),
+                headers={'content-type': 'application/json',
+                         'accept': 'application/json'})
+        self.logger.debug('received %r', response.content)
+        response.raise_for_status()
+        return response.json()
