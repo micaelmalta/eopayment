@@ -145,6 +145,12 @@ class Payment(PaymentCommon):
                 test=True)
         return response
 
+    def validate(self, amount, bank_data, **kwargs):
+        return {}
+
+    def cancel(self, amount, bank_data, **kwargs):
+        return {}
+
 if __name__ == '__main__':
     options = {
             'direct_notification_url': 'http://example.com/direct_notification_url',
