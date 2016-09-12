@@ -172,7 +172,10 @@ class Payment(PaymentCommon):
             data['billingContact.email'] = email
         if 'captureDay' in kwargs:
             data['captureDay'] == kwargs.get('captureDay')
-        data['customerId'] = unicode(name or ' '.join(filter(None, [first_name, last_name])))
+        if first_name:
+            data['billingContact.firstname'] = first_name
+        if last_name:
+            data['billingContact.lastname'] = last_name
         normal_return_url = self.normal_return_url
         if next_url and not normal_return_url:
             warnings.warn("passing next_url to request() is deprecated, "
