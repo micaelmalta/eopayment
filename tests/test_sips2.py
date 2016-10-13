@@ -1,14 +1,16 @@
-import pytest
-import pprint
+# -*- coding: utf-8 -*-
 
 import eopayment
 
 def test_build_request():
     backend = eopayment.Payment('sips2', {})
-    assert backend.request(amount='12')
+    transaction, f, form = backend.request(amount=u'12', last_name=u'Foo',
+                                           first_name=u'Félix')
+    data = [f for f in form.fields if f['name'] == 'Data']
+    assert u'Félix' in data[0]['value']
 
 def test_options():
-    payment = eopayment.Payment('sips2', {'capture_mode': 'VALIDATION'})
+    payment = eopayment.Payment('sips2', {'capture_mode': u'VALIDATION'})
     assert payment.backend.get_data()['captureMode'] == 'VALIDATION'
 
     payment = eopayment.Payment('sips2', {})

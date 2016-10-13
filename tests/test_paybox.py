@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from unittest import TestCase
 from decimal import Decimal
 import base64
@@ -7,31 +9,31 @@ import eopayment.paybox as paybox
 import eopayment
 
 BACKEND_PARAMS = {
-            'platform': 'test',
-            'site': '12345678',
-            'rang': '001',
-            'identifiant': '12345678',
-            'shared_secret': '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',
-            'callback': 'http://example.com/callback',
+            'platform': u'test',
+            'site': u'12345678',
+            'rang': u'001',
+            'identifiant': u'12345678',
+            'shared_secret': u'0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',
+            'callback': u'http://example.com/callback',
 }
 
 class PayboxTests(TestCase):
     def test_sign(self):
         key = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'.decode('hex')
         d = dict(paybox.sign([
-                    ['PBX_SITE', '12345678'],
-                    ['PBX_RANG', '32'],
-                    ['PBX_IDENTIFIANT', '12345678'],
-                    ['PBX_TOTAL', '999'],
-                    ['PBX_DEVISE', '978'],
-                    ['PBX_CMD', 'TEST Paybox'],
-                    ['PBX_PORTEUR', 'test@paybox.com'],
-                    ['PBX_RETOUR', 'Mt:M;Ref:R;Auto:A;Erreur:E'],
-                    ['PBX_HASH', 'SHA512'],
-                    ['PBX_TIME', '2015-06-08T16:21:16+02:00'],
+                    ['PBX_SITE', u'12345678'],
+                    ['PBX_RANG', u'32'],
+                    ['PBX_IDENTIFIANT', u'12345678'],
+                    ['PBX_TOTAL', u'999'],
+                    ['PBX_DEVISE', u'978'],
+                    ['PBX_CMD', u'appel à Paybox'],
+                    ['PBX_PORTEUR', u'test@paybox.com'],
+                    ['PBX_RETOUR', u'Mt:M;Ref:R;Auto:A;Erreur:E'],
+                    ['PBX_HASH', u'SHA512'],
+                    ['PBX_TIME', u'2015-06-08T16:21:16+02:00'],
                 ],
                 key))
-        result = '475FE1C45A0D09D26D2CAC9A1AC39C024773D790F50B6DD15B260F55FCD527FD3AD4AA3998F4162EFE9BDC494B9850A673355A32ACC4F85B67F8566037836F8E'
+        result = '7E74D8E9A0DBB65AAE51C5C50C2668FD98FC99AEDF18244BB1935F602B6C2E953B61FD84364F34FDB88B049901C0A07F6040AF446BBF5589113F48A733D551D4'
         self.assertIn('PBX_HMAC', d)
         self.assertEqual(d['PBX_HMAC'], result)
 
