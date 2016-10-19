@@ -3,7 +3,7 @@
 import logging
 
 from common import (URL, HTML, FORM, RECEIVED, ACCEPTED, PAID, DENIED,
-                    CANCELED, CANCELLED, ERROR, ResponseError)
+                    CANCELED, CANCELLED, ERROR, ResponseError, force_text)
 
 __all__ = ['Payment', 'URL', 'HTML', 'FORM', 'SIPS',
 'SYSTEMPAY', 'SPPLUS', 'TIPI', 'DUMMY', 'get_backend', 'RECEIVED', 'ACCEPTED',
@@ -102,6 +102,9 @@ class Payment(object):
               server, which must be sent to the customer browser.
         '''
         logger.debug(u'%r' %  kwargs)
+        for param in kwargs:
+            # encode all input params to unicode
+            kwargs[param] = force_text(kwargs[param])
         return self.backend.request(amount, **kwargs)
 
     def response(self, query_string, **kwargs):
