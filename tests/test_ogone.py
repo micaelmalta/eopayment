@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from unittest import TestCase
 import urllib
 
@@ -5,13 +7,14 @@ import eopayment
 import eopayment.ogone as ogone
 from eopayment import ResponseError
 
-PSPID = '2352566'
+PSPID = u'2352566ö'
 
 BACKEND_PARAMS = {
     'environment': ogone.ENVIRONMENT_TEST,
     'pspid': PSPID,
-    'sha_in': 'secret',
-    'sha_out': 'secret'
+    'sha_in': u'sécret',
+    'sha_out': u'sécret',
+    'automatic_return_url': u'http://example.com/autömatic_réturn_url'
 }
 
 class OgoneTests(TestCase):
@@ -19,7 +22,7 @@ class OgoneTests(TestCase):
     def test_request(self):
         ogone_backend = eopayment.Payment('ogone', BACKEND_PARAMS)
         amount = '42.42'
-        order_id = 'myorder'
+        order_id = u'my ordér'
         reference, kind, what = ogone_backend.request(amount=amount,
                                         orderid=order_id, email='foo@example.com')
         self.assertEqual(len(reference), 30)
@@ -30,7 +33,7 @@ class OgoneTests(TestCase):
         self.assertEqual(root.attrib['method'], 'POST')
         self.assertEqual(root.attrib['action'], ogone.ENVIRONMENT_TEST_URL)
         values = {
-            'CURRENCY': 'EUR',
+            'CURRENCY': u'EUR',
             'ORDERID': reference,
             'PSPID': PSPID,
             'EMAIL': 'foo@example.com',

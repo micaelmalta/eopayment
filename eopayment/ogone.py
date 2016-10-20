@@ -6,7 +6,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
         ERROR, Form, DENIED, ACCEPTED, ORDERID_TRANSACTION_SEPARATOR,
-        ResponseError)
+        ResponseError, force_byte)
 def N_(message): return message
 
 ENVIRONMENT_TEST = 'TEST'
@@ -458,9 +458,10 @@ class Payment(PaymentCommon):
         values = params.items()
         values = [(a.upper(), b) for a, b in values]
         values = sorted(values)
-        values = ['%s=%s' % (a, b) for a, b in values if a in keep]
+        values = [u'%s=%s' % (a, b) for a, b in values if a in keep]
         tosign = key.join(values)
         tosign += key
+        tosign = force_byte(tosign)
         hashing = getattr(hashlib, algo)
         return hashing(tosign).hexdigest().upper()
 
@@ -513,10 +514,10 @@ class Payment(PaymentCommon):
             params['COM'] = description
         for key, value in kwargs.iteritems():
             params[key.upper()] = value
+        params['SHASIGN'] = self.sha_sign_in(params)
         # uniformize all values to UTF-8 string
         for key in params:
             params[key] = unicode(params[key]).encode('utf-8')
-        params['SHASIGN'] = self.sha_sign_in(params)
         url = self.get_request_url()
         form = Form(
                 url=url,
