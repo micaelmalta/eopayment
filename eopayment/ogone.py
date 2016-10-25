@@ -6,7 +6,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
         ERROR, Form, DENIED, ACCEPTED, ORDERID_TRANSACTION_SEPARATOR,
-        ResponseError, force_byte)
+        ResponseError, force_byte, force_text)
 def N_(message): return message
 
 ENVIRONMENT_TEST = 'TEST'
@@ -494,7 +494,7 @@ class Payment(PaymentCommon):
         # arrondi comptable francais
         amount = amount.quantize(Decimal('1.'), rounding=ROUND_HALF_UP)
         params = {
-                'AMOUNT': amount,
+                'AMOUNT': unicode(amount),
                 'ORDERID': reference,
                 'PSPID': self.pspid,
                 'LANGUAGE': language,
@@ -517,7 +517,7 @@ class Payment(PaymentCommon):
         params['SHASIGN'] = self.sha_sign_in(params)
         # uniformize all values to UTF-8 string
         for key in params:
-            params[key] = unicode(params[key]).encode('utf-8')
+            params[key] = force_text(params[key])
         url = self.get_request_url()
         form = Form(
                 url=url,
@@ -532,6 +532,10 @@ class Payment(PaymentCommon):
         params = dict((key.upper(), params[key][0]) for key in params)
         if not set(params) >= set(['ORDERID', 'PAYID', 'STATUS', 'NCERROR']):
             raise ResponseError()
+
+        # uniformize iso-8859-1 encoded values
+        for key in params:
+            params[key] = force_text(params[key], 'iso-8859-1')
         reference = params['ORDERID']
         transaction_id = params['PAYID']
         status = params['STATUS']
