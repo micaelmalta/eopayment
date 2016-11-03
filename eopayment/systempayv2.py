@@ -140,8 +140,8 @@ PARAMETERS = [
     Parameter('vads_url_return', 'ans', 28, max_length=127),
     Parameter('vads_user_info', 'ans', 61, max_length=255),
     Parameter('vads_contracts', 'ans', 62, max_length=255),
-    Parameter(VADS_CUST_FIRST_NAME, 'an', 104, max_length=63),
-    Parameter(VADS_CUST_LAST_NAME, 'an', 104, max_length=63),
+    Parameter(VADS_CUST_FIRST_NAME, 'ans', 104, max_length=63),
+    Parameter(VADS_CUST_LAST_NAME, 'ans', 104, max_length=63),
 ]
 PARAMETER_MAP = dict(((parameter.name,
                        parameter) for parameter in PARAMETERS))
