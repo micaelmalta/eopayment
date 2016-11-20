@@ -5,9 +5,9 @@ import eopayment
 def test_build_request():
     backend = eopayment.Payment('sips2', {})
     transaction, f, form = backend.request(amount=u'12', last_name=u'Foo',
-                                           first_name=u'Félix')
+                                           first_name=u'Félix000000')
     data = [f for f in form.fields if f['name'] == 'Data']
-    assert u'Félix' in data[0]['value']
+    assert not u'lix000000' in data[0]['value']
 
 def test_options():
     payment = eopayment.Payment('sips2', {'capture_mode': u'VALIDATION'})
