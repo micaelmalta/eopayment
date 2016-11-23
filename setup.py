@@ -97,4 +97,7 @@ setuptools.setup(
         'pycrypto >= 2.5',
         'requests',
     ],
+    cmdclass={
+        'sdist': eo_sdist,
+    }
 )
