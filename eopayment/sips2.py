@@ -130,6 +130,11 @@ class Payment(PaymentCommon):
                 'caption': _('Capture Day'),
                 'required': False,
             },
+            {
+                'name': 'payment_means',
+                'caption': _('Payment Means'),
+                'required': False
+            }
         ],
     }
 
@@ -155,6 +160,8 @@ class Payment(PaymentCommon):
         data['captureMode'] = self.capture_mode
         if self.capture_day:
             data['captureDay'] = self.capture_day
+        if self.payment_means:
+            data['paymentMeanBrandList'] = self.payment_means
         return data
 
     def get_url(self):
