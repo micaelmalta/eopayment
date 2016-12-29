@@ -174,6 +174,10 @@ class Payment(PaymentCommon):
         transaction_id = self.transaction_id(6, string.digits, 'sips2', data['merchantId'])
         data['transactionReference'] = unicode(transaction_id)
         data['orderId'] = orderid or unicode(uuid.uuid4()).replace('-', '')
+        if info1:
+            data['statementReference'] = unicode(info1)
+        else:
+            data['statementReference'] = data['transactionReference']
         data['amount'] = unicode(int(Decimal(amount) * 100))
         if email:
             data['billingContact.email'] = email

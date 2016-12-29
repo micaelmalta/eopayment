@@ -9,6 +9,14 @@ def test_build_request():
     data = [f for f in form.fields if f['name'] == 'Data']
     assert not u'lix000000' in data[0]['value']
 
+    transaction, f, form = backend.request(amount=u'12')
+    data = [f for f in form.fields if f['name'] == 'Data']
+    assert 'statementReference=%s' % transaction in data[0]['value']
+
+    transaction, f, form = backend.request(amount=u'12', info1='foobar')
+    data = [f for f in form.fields if f['name'] == 'Data']
+    assert 'statementReference=foobar' in data[0]['value']
+
 def test_options():
     payment = eopayment.Payment('sips2', {'capture_mode': u'VALIDATION'})
     assert payment.backend.get_data()['captureMode'] == 'VALIDATION'
