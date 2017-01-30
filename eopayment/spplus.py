@@ -4,8 +4,8 @@ import binascii
 from gettext import gettext as _
 import hmac
 import hashlib
-import urlparse
-import urllib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import string
 import datetime as dt
 import logging
@@ -13,7 +13,7 @@ import re
 import warnings
 
 import Crypto.Cipher.DES
-from common import (PaymentCommon, URL, PaymentResponse, RECEIVED, ACCEPTED,
+from .common import (PaymentCommon, URL, PaymentResponse, RECEIVED, ACCEPTED,
         PAID, ERROR, ResponseError)
 
 def N_(message): return message
@@ -84,7 +84,7 @@ def sign_url_paiement(ntkey, query):
     if '?' in query:
         query = query[query.index('?')+1:]
     key = decrypt_ntkey(ntkey)
-    data = urlparse.parse_qs(query, True)
+    data = urllib.parse.parse_qs(query, True)
     fields = [data.get(field,[''])[0] for field in PAIEMENT_FIELDS]
     data_to_sign = ''.join(fields)
     return hmac.new(key[:20], data_to_sign, hashlib.sha1).hexdigest().upper()
@@ -168,17 +168,17 @@ class Payment(PaymentCommon):
                    raise ValueError('normal_return_url must be an absolute URL without parameters')
             fields['urlretour'] = normal_return_url
         logger.debug('sending fields %s' % fields)
-        query = urllib.urlencode(fields)
+        query = urllib.parse.urlencode(fields)
         url = '%s?%s&hmac=%s' % (SERVICE_URL, query, sign_url_paiement(self.cle,
             query))
         logger.debug('full url %s' % url)
         return reference, URL, url
 
     def response(self, query_string, logger=LOGGER, **kwargs):
-        form = urlparse.parse_qs(query_string)
+        form = urllib.parse.parse_qs(query_string)
         if not set(form) >= set([REFERENCE, ETAT, REFSFP]):
             raise ResponseError()
-        for key, value in form.iteritems():
+        for key, value in form.items():
             form[key] = value[0]
         logger.debug('received query_string %s' % query_string)
         logger.debug('parsed as %s' % form)
@@ -233,8 +233,8 @@ if __name__ == '__main__':
 
     ntkey = '58 6d fc 9c 34 91 9b 86 3f fd 64 63 c9 13 4a 26 ba 29 74 1e c7 e9 80 79'
     if len(sys.argv) == 2:
-        print sign_url_paiement(ntkey, sys.argv[1])
-        print sign_ntkey_query(ntkey, sys.argv[1])
+        print(sign_url_paiement(ntkey, sys.argv[1]))
+        print(sign_ntkey_query(ntkey, sys.argv[1]))
     elif len(sys.argv) > 2:
-        print sign_url_paiement(sys.argv[1], sys.argv[2])
-        print sign_ntkey_query(sys.argv[1], sys.argv[2])
+        print(sign_url_paiement(sys.argv[1], sys.argv[2]))
+        print(sign_ntkey_query(sys.argv[1], sys.argv[2]))

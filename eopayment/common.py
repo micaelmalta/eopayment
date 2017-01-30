@@ -28,12 +28,12 @@ ORDERID_TRANSACTION_SEPARATOR = '!'
 
 
 def force_text(s, encoding='utf-8'):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     try:
-        return unicode(s, encoding)
+        return str(s, encoding)
     except UnicodeDecodeError:
-        return unicode(s)
+        return str(s)
 
 def force_byte(s, encoding='utf-8'):
     if isinstance(s, str):

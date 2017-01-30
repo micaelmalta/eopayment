@@ -4,21 +4,21 @@ import eopayment
 
 def test_build_request():
     backend = eopayment.Payment('sips2', {})
-    transaction, f, form = backend.request(amount=u'12', last_name=u'Foo',
-                                           first_name=u'Félix000000')
+    transaction, f, form = backend.request(amount='12', last_name='Foo',
+                                           first_name='Félix000000')
     data = [f for f in form.fields if f['name'] == 'Data']
-    assert not u'lix000000' in data[0]['value']
+    assert not 'lix000000' in data[0]['value']
 
-    transaction, f, form = backend.request(amount=u'12')
+    transaction, f, form = backend.request(amount='12')
     data = [f for f in form.fields if f['name'] == 'Data']
     assert 'statementReference=%s' % transaction in data[0]['value']
 
-    transaction, f, form = backend.request(amount=u'12', info1='foobar')
+    transaction, f, form = backend.request(amount='12', info1='foobar')
     data = [f for f in form.fields if f['name'] == 'Data']
     assert 'statementReference=foobar' in data[0]['value']
 
 def test_options():
-    payment = eopayment.Payment('sips2', {'capture_mode': u'VALIDATION'})
+    payment = eopayment.Payment('sips2', {'capture_mode': 'VALIDATION'})
     assert payment.backend.get_data()['captureMode'] == 'VALIDATION'
 
     payment = eopayment.Payment('sips2', {})

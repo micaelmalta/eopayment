@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import hashlib
 import string
-import urlparse
+import urllib.parse
 from decimal import Decimal, ROUND_HALF_UP
 
-from common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
+from .common import (PaymentCommon, PaymentResponse, FORM, CANCELLED, PAID,
         ERROR, Form, DENIED, ACCEPTED, ORDERID_TRANSACTION_SEPARATOR,
         ResponseError, force_byte, force_text)
 def N_(message): return message
@@ -421,32 +421,32 @@ class Payment(PaymentCommon):
             },
             {'name': 'environment',
                 'default': ENVIRONMENT_TEST,
-                'caption': N_(u'Environnement'),
+                'caption': N_('Environnement'),
                 'choices': ENVIRONMENT,
             },
             {'name': 'pspid',
-                'caption': N_(u"Nom d'affiliation dans le système"),
+                'caption': N_("Nom d'affiliation dans le système"),
                 'required': True,
             },
             {'name': 'language',
-                'caption': N_(u'Langage'),
+                'caption': N_('Langage'),
                 'default': 'fr_FR',
                 'choices': (('fr_FR', N_('français')),),
             },
             {'name': 'hash_algorithm',
-                'caption': N_(u'Algorithme de hachage'),
+                'caption': N_('Algorithme de hachage'),
                 'default': 'sha1',
             },
             {'name': 'sha_in',
-                'caption': N_(u'Clé SHA-IN'),
+                'caption': N_('Clé SHA-IN'),
                 'required': True,
             },
             {'name': 'sha_out',
-                'caption': N_(u'Clé SHA-OUT'),
+                'caption': N_('Clé SHA-OUT'),
                 'required': True,
             },
             {'name': 'currency',
-                'caption': N_(u'Monnaie'),
+                'caption': N_('Monnaie'),
                 'default': 'EUR',
                 'choices': ('EUR',),
             },
@@ -455,10 +455,10 @@ class Payment(PaymentCommon):
 
     def sha_sign(self, algo, key, params, keep):
         '''Ogone signature algorithm of query string'''
-        values = params.items()
+        values = list(params.items())
         values = [(a.upper(), b) for a, b in values]
         values = sorted(values)
-        values = [u'%s=%s' % (a, b) for a, b in values if a in keep]
+        values = ['%s=%s' % (a, b) for a, b in values if a in keep]
         tosign = key.join(values)
         tosign += key
         tosign = force_byte(tosign)
@@ -494,7 +494,7 @@ class Payment(PaymentCommon):
         # arrondi comptable francais
         amount = amount.quantize(Decimal('1.'), rounding=ROUND_HALF_UP)
         params = {
-                'AMOUNT': unicode(amount),
+                'AMOUNT': str(amount),
                 'ORDERID': reference,
                 'PSPID': self.pspid,
                 'LANGUAGE': language,
@@ -512,7 +512,7 @@ class Payment(PaymentCommon):
             params['EMAIL'] = email
         if description:
             params['COM'] = description
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             params[key.upper()] = value
         params['SHASIGN'] = self.sha_sign_in(params)
         # uniformize all values to UTF-8 string
@@ -528,7 +528,7 @@ class Payment(PaymentCommon):
         return reference, FORM, form
 
     def response(self, query_string, **kwargs):
-        params = urlparse.parse_qs(query_string, True)
+        params = urllib.parse.parse_qs(query_string, True)
         params = dict((key.upper(), params[key][0]) for key in params)
         if not set(params) >= set(['ORDERID', 'PAYID', 'STATUS', 'NCERROR']):
             raise ResponseError()
@@ -545,8 +545,8 @@ class Payment(PaymentCommon):
             signature = params.get('SHASIGN')
             expected_signature = self.sha_sign_out(params)
             signed = signature == expected_signature
-            print 'signed', signature
-            print 'expected', expected_signature
+            print('signed', signature)
+            print('expected', expected_signature)
         if status == '1':
             result = CANCELLED
         elif status == '2':

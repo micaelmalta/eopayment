@@ -1,4 +1,4 @@
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import string
 import logging
 import warnings
@@ -8,9 +8,9 @@ def N_(message): return message
 try:
     from cgi import parse_qs
 except ImportError:
-    from urlparse import parse_qs
+    from urllib.parse import parse_qs
 
-from common import PaymentCommon, URL, PaymentResponse, PAID, ERROR, ResponseError
+from .common import PaymentCommon, URL, PaymentResponse, PAID, ERROR, ResponseError
 
 __all__ = [ 'Payment' ]
 
@@ -114,10 +114,10 @@ class Payment(PaymentCommon):
         }
         query.update(dict(name=name, address=address, email=email, phone=phone,
             orderid=orderid, info1=info1, info2=info2, info3=info3))
-        for key in query.keys():
+        for key in list(query.keys()):
             if query[key] is None:
                 del query[key]
-        url = '%s?%s' % (SERVICE_URL, urllib.urlencode(query))
+        url = '%s?%s' % (SERVICE_URL, urllib.parse.urlencode(query))
         return transaction_id, URL, url
 
     def response(self, query_string, logger=LOGGER, **kwargs):

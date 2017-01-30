@@ -4,13 +4,13 @@ import datetime as dt
 import hashlib
 import logging
 import string
-import urlparse
+import urllib.parse
 import warnings
 from gettext import gettext as _
 
-from common import (PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form,
+from .common import (PaymentCommon, PaymentResponse, PAID, ERROR, FORM, Form,
                     ResponseError, force_text, force_byte)
-from cb import CB_RESPONSE_CODES
+from .cb import CB_RESPONSE_CODES
 
 __all__ = ['Payment']
 
@@ -102,35 +102,35 @@ PARAMETERS = [
     Parameter('vads_language', 'a', 12, length=2, default='fr'),
     Parameter('vads_order_id', 'an-', 13, max_length=32),
     Parameter('vads_order_info', 'an', 14, max_length=255,
-              description=_(u"Complément d'information 1")),
+              description=_("Complément d'information 1")),
     Parameter('vads_order_info2', 'an', 14, max_length=255,
-              description=_(u"Complément d'information 2")),
+              description=_("Complément d'information 2")),
     Parameter('vads_order_info3', 'an', 14, max_length=255,
-              description=_(u"Complément d'information 3")),
+              description=_("Complément d'information 3")),
     Parameter('vads_page_action', None, 46, needed=True, default='PAYMENT',
               choices=('PAYMENT',)),
     Parameter('vads_payment_cards', 'an;', 8, max_length=127, default='',
-              description=_(u'Liste des cartes de paiement acceptées'),
-              help_text=_(u'vide ou des valeurs sépareés par un point-virgule '
+              description=_('Liste des cartes de paiement acceptées'),
+              help_text=_('vide ou des valeurs sépareés par un point-virgule '
                           'parmi AMEX, AURORE-MULTI, BUYSTER, CB, COFINOGA, '
                           'E-CARTEBLEUE, MASTERCARD, JCB, MAESTRO, ONEY, '
                           'ONEY_SANDBOX, PAYPAL, PAYPAL_SB, PAYSAFECARD, '
                           'VISA')),
     # must be SINGLE or MULTI with parameters
-    Parameter('vads_payment_config', '', 07, default='SINGLE',
+    Parameter('vads_payment_config', '', 0o7, default='SINGLE',
               choices=('SINGLE', 'MULTI'), needed=True),
     Parameter('vads_return_mode', None, 48, default='GET',
               choices=('', 'NONE', 'POST', 'GET')),
     Parameter('signature', 'an', None, length=40),
-    Parameter('vads_site_id', 'n', 02, length=8, needed=True,
-              description=_(u'Identifiant de la boutique')),
+    Parameter('vads_site_id', 'n', 0o2, length=8, needed=True,
+              description=_('Identifiant de la boutique')),
     Parameter('vads_theme_config', 'ans', 32, max_length=255),
-    Parameter(VADS_TRANS_DATE, 'n', 04, length=14, needed=True,
+    Parameter(VADS_TRANS_DATE, 'n', 0o4, length=14, needed=True,
               default=isonow),
-    Parameter('vads_trans_id', 'n', 03, length=6, needed=True),
+    Parameter('vads_trans_id', 'n', 0o3, length=6, needed=True),
     Parameter('vads_validation_mode', 'n', 5, max_length=1, choices=('', 0, 1),
               default=''),
-    Parameter('vads_version', 'an', 01, default='V2', needed=True,
+    Parameter('vads_version', 'an', 0o1, default='V2', needed=True,
               choices=('V2',)),
     Parameter('vads_url_success', 'ans', 24, max_length=127),
     Parameter('vads_url_referral', 'ans', 26, max_length=127),
@@ -173,7 +173,7 @@ EXTRA_RESULT_MAP = {
 
 def add_vads(kwargs):
     new_vargs = {}
-    for k, v in kwargs.iteritems():
+    for k, v in kwargs.items():
         if k.startswith('vads_'):
             new_vargs[k] = v
         else:
@@ -232,16 +232,16 @@ class Payment(PaymentCommon):
             },
             {'name': 'service_url',
                 'default': service_url,
-                'caption': _(u'URL du service de paiment'),
-                'help_text': _(u'ne pas modifier si vous ne savez pas'),
+                'caption': _('URL du service de paiment'),
+                'help_text': _('ne pas modifier si vous ne savez pas'),
                 'validation': lambda x: x.startswith('http'),
                 'required': True, },
             {'name': 'secret_test',
-                'caption': _(u'Secret pour la configuration de TEST'),
+                'caption': _('Secret pour la configuration de TEST'),
                 'validation': lambda value: str.isdigit(value),
                 'required': True, },
             {'name': 'secret_production',
-                'caption': _(u'Secret pour la configuration de PRODUCTION'),
+                'caption': _('Secret pour la configuration de PRODUCTION'),
                 'validation': lambda value: str.isdigit(value), },
         ]
     }
@@ -276,7 +276,7 @@ class Payment(PaymentCommon):
                           info2, info3, next_url, kwargs)
         # amount unit is cents
         amount = '%.0f' % (100 * amount)
-        kwargs.update(add_vads({'amount': unicode(amount)}))
+        kwargs.update(add_vads({'amount': str(amount)}))
         if amount < 0:
             raise ValueError('amount must be an integer >= 0')
         normal_return_url = self.normal_return_url
@@ -285,30 +285,30 @@ class Payment(PaymentCommon):
                           "set normal_return_url in options", DeprecationWarning)
             normal_return_url = next_url
         if normal_return_url:
-            kwargs[VADS_URL_RETURN] = unicode(normal_return_url)
+            kwargs[VADS_URL_RETURN] = str(normal_return_url)
         if name is not None:
-            kwargs['vads_cust_name'] = unicode(name)
+            kwargs['vads_cust_name'] = str(name)
         if first_name is not None:
-            kwargs[VADS_CUST_FIRST_NAME] = unicode(first_name)
+            kwargs[VADS_CUST_FIRST_NAME] = str(first_name)
         if last_name is not None:
-            kwargs[VADS_CUST_LAST_NAME] = unicode(last_name)
+            kwargs[VADS_CUST_LAST_NAME] = str(last_name)
 
         if address is not None:
-            kwargs['vads_cust_address'] = unicode(address)
+            kwargs['vads_cust_address'] = str(address)
         if email is not None:
-            kwargs['vads_cust_email'] = unicode(email)
+            kwargs['vads_cust_email'] = str(email)
         if phone is not None:
-            kwargs['vads_cust_phone'] = unicode(phone)
+            kwargs['vads_cust_phone'] = str(phone)
         if info1 is not None:
-            kwargs['vads_order_info'] = unicode(info1)
+            kwargs['vads_order_info'] = str(info1)
         if info2 is not None:
-            kwargs['vads_order_info2'] = unicode(info2)
+            kwargs['vads_order_info2'] = str(info2)
         if info3 is not None:
-            kwargs['vads_order_info3'] = unicode(info3)
+            kwargs['vads_order_info3'] = str(info3)
         if orderid is not None:
             # check orderid format first
             name = 'vads_order_id'
-            orderid = unicode(orderid)
+            orderid = str(orderid)
             ptype = 'an-'
             p = Parameter(name, ptype, 13, max_length=32)
             if not p.check_value(orderid):
@@ -318,14 +318,14 @@ class Payment(PaymentCommon):
 
         transaction_id = self.transaction_id(6, string.digits, 'systempay',
                                              self.options[VADS_SITE_ID])
-        kwargs[VADS_TRANS_ID] = unicode(transaction_id)
+        kwargs[VADS_TRANS_ID] = str(transaction_id)
         fields = kwargs
         for parameter in PARAMETERS:
             name = parameter.name
             # import default parameters from configuration
             if name not in fields \
                     and name in self.options:
-                fields[name] = unicode(self.options[name])
+                fields[name] = str(self.options[name])
             # import default parameters from module
             if name not in fields and parameter.default is not None:
                 if callable(parameter.default):
@@ -333,7 +333,7 @@ class Payment(PaymentCommon):
                 else:
                     fields[name] = parameter.default
         check_vads(fields)
-        fields[SIGNATURE] = unicode(self.signature(fields))
+        fields[SIGNATURE] = str(self.signature(fields))
         self.logger.debug('%s request contains fields: %s', __name__, fields)
         transaction_id = '%s_%s' % (fields[VADS_TRANS_DATE], transaction_id)
         self.logger.debug('%s transaction id: %s', __name__, transaction_id)
@@ -342,18 +342,18 @@ class Payment(PaymentCommon):
             method='POST',
             fields=[
                 {
-                    'type': u'hidden',
+                    'type': 'hidden',
                     'name': force_text(field_name),
                     'value': force_text(field_value),
                 }
-                for field_name, field_value in fields.iteritems()])
+                for field_name, field_value in fields.items()])
         return transaction_id, FORM, form
 
     def response(self, query_string, **kwargs):
-        fields = urlparse.parse_qs(query_string, True)
+        fields = urllib.parse.parse_qs(query_string, True)
         if not set(fields) >= set([SIGNATURE, VADS_CTX_MODE, VADS_AUTH_RESULT]):
             raise ResponseError()
-        for key, value in fields.iteritems():
+        for key, value in fields.items():
             fields[key] = value[0]
         copy = fields.copy()
         bank_status = []
@@ -413,13 +413,13 @@ class Payment(PaymentCommon):
     def signature(self, fields):
         self.logger.debug('got fields %s to sign' % fields)
         ordered_keys = sorted(
-            [key for key in fields.keys() if key.startswith('vads_')])
+            [key for key in list(fields.keys()) if key.startswith('vads_')])
         self.logger.debug('ordered keys %s' % ordered_keys)
         ordered_fields = [force_byte(fields[key]) for key in ordered_keys]
         secret = getattr(self, 'secret_%s' % fields['vads_ctx_mode'].lower())
         signed_data = '+'.join(ordered_fields)
         signed_data = '%s+%s' % (signed_data, force_byte(secret))
-        self.logger.debug(u'generating signature on «%s»', signed_data)
+        self.logger.debug('generating signature on «%s»', signed_data)
         sign = hashlib.sha1(signed_data).hexdigest()
-        self.logger.debug(u'signature «%s»', sign)
+        self.logger.debug('signature «%s»', sign)
         return sign

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from decimal import Decimal, ROUND_DOWN
-from common import (PaymentCommon, PaymentResponse, URL, PAID, DENIED,
+from .common import (PaymentCommon, PaymentResponse, URL, PAID, DENIED,
         CANCELLED, ERROR, ResponseError)
-from urllib import urlencode
-from urlparse import parse_qs
+from urllib.parse import urlencode
+from urllib.parse import parse_qs
 from gettext import gettext as _
 import logging
 import warnings
 
-from systempayv2 import isonow
+from .systempayv2 import isonow
 
 __all__ = ['Payment']
 
@@ -28,16 +28,16 @@ class Payment(PaymentCommon):
             'parameters': [
                 {
                     'name': 'numcli',
-                    'caption': _(u'Numéro client'),
-                    'help_text': _(u'un numéro à 6 chiffres communiqué par l’administrateur TIPI'),
+                    'caption': _('Numéro client'),
+                    'help_text': _('un numéro à 6 chiffres communiqué par l’administrateur TIPI'),
                     'validation': lambda s: str.isdigit(s) and (0 < int(s) < 1000000),
                     'required': True,
                 },
                 {
                     'name': 'service_url',
                     'default': TIPI_URL,
-                    'caption': _(u'URL du service TIPI'),
-                    'help_text': _(u'ne pas modifier si vous ne savez pas'),
+                    'caption': _('URL du service TIPI'),
+                    'help_text': _('ne pas modifier si vous ne savez pas'),
                     'validation': lambda x: x.startswith('http'),
                     'required': True,
                 },
@@ -95,12 +95,12 @@ class Payment(PaymentCommon):
             refdet = str(refdet)
             if 6 > len(refdet) > 30:
                 raise ValueError('len(REFDET) < 6 or > 30')
-        except Exception, e:
+        except Exception as e:
             raise ValueError('REFDET format invalide, %r' % refdet, e)
         if objet is not None:
             try:
                 objet = str(objet)
-            except Exception, e:
+            except Exception as e:
                 raise ValueError('OBJET must be a string', e)
             if not objet.replace(' ','').isalnum():
                 raise ValueError('OBJECT must only contains '
@@ -113,7 +113,7 @@ class Payment(PaymentCommon):
                 raise ValueError('no @ in MEL')
             if not (6 <= len(mel) <= 80):
                 raise ValueError('len(MEL) is invalid, must be between 6 and 80')
-        except Exception, e:
+        except Exception as e:
             raise ValueError('MEL is not a valid email, %r' % mel, e)
 
         saisie = saisie or self.saisie
@@ -146,7 +146,7 @@ class Payment(PaymentCommon):
         fields = parse_qs(query_string, True)
         if not set(fields) >= set(['refdet', 'resultrans']):
             raise ResponseError()
-        for key, value in fields.iteritems():
+        for key, value in fields.items():
             fields[key] = value[0]
         refdet = fields.get('refdet')
         if refdet is None:
@@ -183,11 +183,11 @@ class Payment(PaymentCommon):
 
 if __name__ == '__main__':
     p = Payment({'numcli': '12345'})
-    print p.request(amount=Decimal('123.12'),
+    print(p.request(amount=Decimal('123.12'),
             exer=9999,
             refdet=999900000000999999,
             objet='tout a fait',
             email='info@entrouvert.com',
             urlcl='http://example.com/tipi/test',
-            saisie='T')
-    print p.response('objet=tout+a+fait&montant=12312&saisie=T&mel=info%40entrouvert.com&numcli=12345&exer=9999&refdet=999900000000999999&resultrans=P')
+            saisie='T'))
+    print(p.response('objet=tout+a+fait&montant=12312&saisie=T&mel=info%40entrouvert.com&numcli=12345&exer=9999&refdet=999900000000999999&resultrans=P'))

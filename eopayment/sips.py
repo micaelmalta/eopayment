@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import urlparse
+import urllib.parse
 import string
 import subprocess
 from decimal import Decimal
@@ -9,8 +9,8 @@ import os.path
 import uuid
 import warnings
 
-from common import PaymentCommon, HTML, PaymentResponse, ResponseError
-from cb import CB_RESPONSE_CODES
+from .common import PaymentCommon, HTML, PaymentResponse, ResponseError
+from .cb import CB_RESPONSE_CODES
 
 '''
 Payment backend module for the ATOS/SIPS system used by many Frenck banks.
@@ -112,7 +112,7 @@ class Payment(PaymentCommon):
         if PATHFILE in self.options:
             params[PATHFILE] = self.options[PATHFILE]
         executable = os.path.join(self.binpath, executable)
-        args = [executable] + ["%s=%s" % p for p in params.iteritems()]
+        args = [executable] + ["%s=%s" % p for p in params.items()]
         self.logger.debug('executing %s' % args)
         result,_ = subprocess.Popen(' '.join(args),
                 stdout=subprocess.PIPE, shell=True).communicate()
@@ -158,12 +158,12 @@ class Payment(PaymentCommon):
             raise RuntimeError('sips/request returned -1: %s' % error)
 
     def response(self, query_string, **kwargs):
-        form = urlparse.parse_qs(query_string)
+        form = urllib.parse.parse_qs(query_string)
         if not DATA in form:
             raise ResponseError()
         params = {'message': form[DATA][0]}
         result = self.execute('response', params)
-        d = dict(zip(RESPONSE_PARAMS, result))
+        d = dict(list(zip(RESPONSE_PARAMS, result)))
         # The reference identifier for the payment is the authorisation_id
         d[self.BANK_ID] = d.get(AUTHORISATION_ID)
         self.logger.debug('response contains fields %s' % d)

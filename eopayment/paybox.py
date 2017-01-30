@@ -9,14 +9,14 @@ from decimal import Decimal, ROUND_DOWN
 from Crypto.Signature import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA
-import urlparse
-import urllib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import base64
 from gettext import gettext as _
 import string
 import warnings
 
-from common import (PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form,
+from .common import (PaymentCommon, PaymentResponse, FORM, PAID, ERROR, Form,
         ORDERID_TRANSACTION_SEPARATOR, ResponseError)
 
 __all__ = ['sign', 'Payment']
@@ -109,7 +109,7 @@ def sign(data, key):
             algo = ALGOS[v]
             break
     assert algo, 'Missing or invalid PBX_HASH'
-    tosign = ['%s=%s' % (k, unicode(v).encode('utf-8')) for k, v in data]
+    tosign = ['%s=%s' % (k, str(v).encode('utf-8')) for k, v in data]
     tosign = '&'.join(tosign)
     logger.debug('signed string %r', tosign)
     signature = hmac.new(key, tosign, algo)
@@ -159,28 +159,28 @@ class Payment(PaymentCommon):
                 'name': 'platform',
                 'caption': _('Plateforme cible'),
                 'default': 'test',
-                'validation': lambda x: isinstance(x, basestring) and
+                'validation': lambda x: isinstance(x, str) and
                 x.lower() in ('test', 'prod'),
             },
             {
                 'name': 'site',
                 'caption': _('Numéro de site'),
                 'required': True,
-                'validation': lambda x: isinstance(x, basestring) and
+                'validation': lambda x: isinstance(x, str) and
                 x.isdigit() and len(x) == 7,
             },
             {
                 'name': 'rang',
                 'caption': _('Numéro de rang'),
                 'required': True,
-                'validation': lambda x: isinstance(x, basestring) and
+                'validation': lambda x: isinstance(x, str) and
                 x.isdigit() and len(x) == 2,
             },
             {
                 'name': 'identifiant',
                 'caption': _('Identifiant'),
                 'required': True,
-                'validation': lambda x: isinstance(x, basestring) and
+                'validation': lambda x: isinstance(x, str) and
                 x.isdigit() and (0 < len(x) < 10),
             },
             {
@@ -208,22 +208,22 @@ class Payment(PaymentCommon):
 
     def request(self, amount, email, name=None, orderid=None, **kwargs):
         d = OrderedDict()
-        d['PBX_SITE'] = unicode(self.site)
-        d['PBX_RANG'] = unicode(self.rang).strip()[-2:]
-        d['PBX_IDENTIFIANT'] = unicode(self.identifiant)
+        d['PBX_SITE'] = str(self.site)
+        d['PBX_RANG'] = str(self.rang).strip()[-2:]
+        d['PBX_IDENTIFIANT'] = str(self.identifiant)
         d['PBX_TOTAL'] = (amount * Decimal(100)).to_integral_value(ROUND_DOWN)
-        d['PBX_DEVISE'] = unicode(self.devise)
+        d['PBX_DEVISE'] = str(self.devise)
         transaction_id = kwargs.get('transaction_id') or \
             self.transaction_id(12, string.digits, 'paybox', self.site,
                                 self.rang, self.identifiant)
-        d['PBX_CMD'] = unicode(transaction_id)
+        d['PBX_CMD'] = str(transaction_id)
         # prepend order id command reference
         if orderid:
             d['PBX_CMD'] = orderid + ORDERID_TRANSACTION_SEPARATOR + d['PBX_CMD']
-        d['PBX_PORTEUR'] = unicode(email)
+        d['PBX_PORTEUR'] = str(email)
         d['PBX_RETOUR'] = 'montant:M;reference:R;code_autorisation:A;erreur:E;signature:K'
         d['PBX_HASH'] = 'SHA512'
-        d['PBX_TIME'] = kwargs.get('time') or (unicode(datetime.datetime.utcnow().isoformat('T')).split('.')[0]+'+00:00')
+        d['PBX_TIME'] = kwargs.get('time') or (str(datetime.datetime.utcnow().isoformat('T')).split('.')[0]+'+00:00')
         d['PBX_ARCHIVAGE'] = transaction_id
         if self.normal_return_url:
             d['PBX_EFFECTUE'] = self.normal_return_url
@@ -236,23 +236,23 @@ class Payment(PaymentCommon):
                           "use automatic_return_url", DeprecationWarning)
             automatic_return_url = self.callback
         if automatic_return_url:
-            d['PBX_REPONDRE_A'] = unicode(automatic_return_url)
-        d = d.items()
+            d['PBX_REPONDRE_A'] = str(automatic_return_url)
+        d = list(d.items())
         d = sign(d, self.shared_secret.decode('hex'))
         url = URLS[self.platform]
         fields = []
         for k, v in d:
             fields.append({
-                'type': u'hidden',
-                'name': unicode(k),
-                'value': unicode(v),
+                'type': 'hidden',
+                'name': str(k),
+                'value': str(v),
             })
         form = Form(url, 'POST', fields, submit_name=None,
-                    submit_value=u'Envoyer', encoding='utf-8')
+                    submit_value='Envoyer', encoding='utf-8')
         return transaction_id, FORM, form
 
     def response(self, query_string, callback=False, **kwargs):
-        d = urlparse.parse_qs(query_string, True, False)
+        d = urllib.parse.parse_qs(query_string, True, False)
         if not set(d) >= set(['erreur', 'reference']):
             raise ResponseError()
         signed = False
@@ -263,12 +263,12 @@ class Payment(PaymentCommon):
             if callback:
                 for key in ('montant', 'reference', 'code_autorisation',
                             'erreur'):
-                    data.append('%s=%s' % (key, urllib.quote(d[key][0])))
+                    data.append('%s=%s' % (key, urllib.parse.quote(d[key][0])))
             else:
-                for key, value in urlparse.parse_qsl(query_string, True, True):
+                for key, value in urllib.parse.parse_qsl(query_string, True, True):
                     if key == 'signature':
                         break
-                    data.append('%s=%s' % (key, urllib.quote(value)))
+                    data.append('%s=%s' % (key, urllib.parse.quote(value)))
             data = '&'.join(data)
             signed = verify(data, sig)
         if d['erreur'][0] == '00000':

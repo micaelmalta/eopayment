@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import eopayment
 import eopayment.ogone as ogone
 from eopayment import ResponseError
 
-PSPID = u'2352566ö'
+PSPID = '2352566ö'
 
 BACKEND_PARAMS = {
     'environment': ogone.ENVIRONMENT_TEST,
     'pspid': PSPID,
-    'sha_in': u'sécret',
-    'sha_out': u'sécret',
-    'automatic_return_url': u'http://example.com/autömatic_réturn_url'
+    'sha_in': 'sécret',
+    'sha_out': 'sécret',
+    'automatic_return_url': 'http://example.com/autömatic_réturn_url'
 }
 
 class OgoneTests(TestCase):
@@ -22,7 +22,7 @@ class OgoneTests(TestCase):
     def test_request(self):
         ogone_backend = eopayment.Payment('ogone', BACKEND_PARAMS)
         amount = '42.42'
-        order_id = u'my ordér'
+        order_id = 'my ordér'
         reference, kind, what = ogone_backend.request(amount=amount,
                                         orderid=order_id, email='foo@example.com')
         self.assertEqual(len(reference), 30)
@@ -33,7 +33,7 @@ class OgoneTests(TestCase):
         self.assertEqual(root.attrib['method'], 'POST')
         self.assertEqual(root.attrib['action'], ogone.ENVIRONMENT_TEST_URL)
         values = {
-            'CURRENCY': u'EUR',
+            'CURRENCY': 'EUR',
             'ORDERID': reference,
             'PSPID': PSPID,
             'EMAIL': 'foo@example.com',
@@ -52,15 +52,15 @@ class OgoneTests(TestCase):
     def test_unicode_response(self):
         ogone_backend = eopayment.Payment('ogone', BACKEND_PARAMS)
         order_id = 'myorder'
-        data = {'orderid': u'myorder', 'status': u'9', 'payid': u'3011229363',
-                'cn': u'Usér', 'ncerror': u'0',
-                'trxdate': u'10/24/16', 'acceptance': u'test123',
-                'currency': u'eur', 'amount': u'7.5',
-                'shasign': u'3EE0CF69B5A8514962C9CF8A545861F0CA1C6891'}
+        data = {'orderid': 'myorder', 'status': '9', 'payid': '3011229363',
+                'cn': 'Usér', 'ncerror': '0',
+                'trxdate': '10/24/16', 'acceptance': 'test123',
+                'currency': 'eur', 'amount': '7.5',
+                'shasign': '3EE0CF69B5A8514962C9CF8A545861F0CA1C6891'}
         # uniformize to utf-8 first
         for k in data:
             data[k] = eopayment.common.force_byte(data[k])
-        response = ogone_backend.response(urllib.urlencode(data))
+        response = ogone_backend.response(urllib.parse.urlencode(data))
         assert response.signed
         self.assertEqual(response.order_id, order_id)
 
@@ -78,4 +78,4 @@ class OgoneTests(TestCase):
         order_id = 'myorder'
         data = {'payid': '32100123', 'status': 9, 'ncerror': 0}
         with self.assertRaises(ResponseError):
-            response = ogone_backend.response(urllib.urlencode(data))
+            response = ogone_backend.response(urllib.parse.urlencode(data))
