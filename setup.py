@@ -77,16 +77,16 @@ def get_version():
             return version
     return '0.0.0'
 
+with open(os.path.join(os.path.dirname(__file__), 'README.txt')) as readme:
+    README = readme.read()
+
 setuptools.setup(
     name='eopayment',
     version=get_version(),
     license='GPLv3 or later',
     description='Common API to use all French online payment credit card '
     'processing services',
-    long_description=file(
-        os.path.join(
-            os.path.dirname(__file__),
-            'README.txt')).read(),
+    long_description=README,
     url='http://dev.entrouvert.org/projects/eopayment/',
     author="Entr'ouvert",
     author_email="info@entrouvert.com",
